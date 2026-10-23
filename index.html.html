@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PocaDrop (pocadrop.ru) — Магазин официальных K-Pop фотокарт</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-pastel: linear-gradient(135deg, #fdfbfb 0%, #f5f0ff 45%, #fff0f6 100%);
+      --text-graphite: #2b2d42;
+    }
+    body {
+      font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-pastel);
+      color: var(--text-graphite);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Glassmorphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+    }
+    .glass-strong {
+      background: rgba(255, 255, 255, 0.90);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+    }
+    /* Holographic effect for Rare Cards (POB / Lucky Draw) */
+    .holo-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .holo-card::after {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 182, 255, 0.45) 36%,
+        rgba(165, 243, 252, 0.5) 45%,
+        rgba(254, 240, 138, 0.45) 54%,
+        rgba(196, 181, 253, 0.45) 64%,
+        transparent 80%
+      );
+      transform: translateX(-100%) rotate(15deg);
+      transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      mix-blend-mode: color-dodge;
+    }
+    .holo-card:hover::after {
+      transform: translateX(100%) rotate(15deg);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f3e8ff; }
+    ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #c084fc; }
+    /* Card Aspect Ratio (Standard K-pop Photocard 55x85mm) */
+    .photocard-ratio {
+      aspect-ratio: 55 / 85;
+    }
+  </style>
+</head>
+<body class="pb-24 md:pb-12 selection:bg-purple-200 selection:text-purple-900">
+
+  <!-- Decorative Ambient Blobs -->
+  <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-purple-300/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed top-[35%] right-[-10%] w-96 h-96 bg-pink-300/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-[-10%] left-[25%] w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- HEADER (Закрепленная шапка) -->
+  <header class="sticky top-0 z-40 glass shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-2.5 group shrink-0">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-500 via-fuchsia-400 to-pink-400 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-purple-200 group-hover:scale-105 transition">
+          ✦
+        </div>
+        <div>
+          <span class="font-extrabold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-800 via-purple-900 to-pink-700">PocaDrop</span>
+          <span class="hidden sm:inline-block ml-1.5 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">pocadrop.ru</span>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="relative flex-1 max-w-md mx-2">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Поиск по мемберу, группе или ID (напр. Felix, Stray Kids)..."
+          class="w-full pl-10 pr-8 py-2.5 rounded-2xl bg-white/80 border border-purple-100 focus:border-purple-400 focus:bg-white focus:ring-4 focus:ring-purple-100 outline-none text-sm transition"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+        </svg>
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs px-1">✕</button>
+      </div>
+
+      <!-- Right Actions: Demo Photo Loader & Cart Button -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <!-- Кнопка подгрузки локальных фото из папки для живой презентации -->
+        <label class="cursor-pointer hidden md:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition" title="Загрузите фото из вашей папки Kpop cards examples с компьютера, если хотите заменить превью">
+          <span>📸 Загрузить фото</span>
+          <input id="customPhotoInput" type="file" accept="image/*" multiple class="hidden" />
+        </label>
+
+        <!-- Cart Button -->
+        <button
+          id="openCartHeaderBtn"
+          class="relative flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-purple-950 text-white font-semibold text-sm shadow-lg shadow-purple-900/10 transition active:scale-95"
+        >
+          <svg class="w-5 h-5 text-pink-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span class="hidden sm:inline">Корзина</span>
+          <span id="headerCartPrice" class="hidden lg:inline text-xs font-normal text-purple-200 border-l border-white/20 pl-2">0 ₽</span>
+          <span id="headerCartBadge" class="min-w-[22px] h-[22px] px-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold flex items-center justify-center shadow">
+            0
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-8">
+
+    <!-- HERO SECTION + ПРОГРЕССИВНАЯ ШКАЛА СКИДОК -->
+    <section class="glass rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl shadow-purple-900/5 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Column: Title & Random Photocard Promo -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100/80 border border-pink-200 text-pink-700 text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+            100% Оригинальные релизы из Кореи • Упаковка в топлоадер
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-[40px] font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+            Дропы редких и альбомных <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">K-Pop фотокарт</span>
+          </h1>
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Добро пожаловать в <strong>PocaDrop</strong>! Собирайте любимых мемберов и полные сеты. Чем больше карт в заказе, тем выгоднее стоимость каждой из них — скидка считается автоматически.
+          </p>
+
+          <!-- Special Widget: Random Photocard (350 ₽) -->
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 border border-purple-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🎲</span>
+                <span class="font-bold text-slate-800 text-sm sm:text-base">Random Photocard (Карта наугад)</span>
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">350 ₽ / шт.</span>
+              </div>
+              <p class="text-xs text-slate-600">
+                Секретная оригинальная карта из наличия! Считается по фиксированной ставке 350 ₽ параллельно основному заказу.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 self-end sm:self-center shrink-0 bg-white/90 px-2.5 py-1.5 rounded-xl border border-purple-200 shadow-sm">
+              <button id="randomMinusBtn" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-purple-100 text-slate-700 font-bold flex items-center justify-center transition">−</button>
+              <span id="randomCountDisplay" class="w-6 text-center font-extrabold text-sm text-purple-900">0</span>
+              <button id="randomPlusBtn" class="w-7 h-7 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center transition">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Progressive Discount Grid -->
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <span>✨ Таблица прогрессивных скидок</span>
+              <span class="text-xs font-normal text-purple-600">(кликните или добавьте карты, чтобы увидеть ваш уровень)</span>
+            </h2>
+            <span id="activeTierBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">
+              Выбрано карт: 0 шт.
+            </span>
+          </div>
+
+          <div id="discountTiersGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <!-- JS injects the 8 discount tiers here -->
+          </div>
+
+          <!-- Dynamic Upsell Bar inside Hero -->
+          <div id="heroUpsellBar" class="p-3.5 rounded-2xl bg-white/80 border border-purple-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-base">💡</span>
+              <span id="heroUpsellText" class="font-medium text-slate-700">Добавьте первую карту в корзину, чтобы запустить расчет скидки!</span>
+            </div>
+            <span id="heroBonusPill" class="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0 hidden">
+              Ваша скидка: 0 ₽
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ПАНЕЛЬ ФИЛЬТРОВ И СТАТУС БАР -->
+    <section class="space-y-4">
+      <div class="glass rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
+        
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <!-- Category Gender Tabs -->
+          <div class="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+            <button data-gender="all" class="gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm">
+              Все группы
+            </button>
+            <button data-gender="boy" class="gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
+              🕺 Мужские (Boy Groups)
+            </button>
+            <button data-gender="girl" class="gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
+              💃 Женские (Girl Groups)
+            </button>
+          </div>
+
+          <!-- Condition & Availability Filters -->
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="releaseFilter" class="px-3.5 py-2 rounded-xl bg-white/90 border border-purple-100 text-xs sm:text-sm font-semibold text-slate-700 outline-none focus:border-purple-400">
+              <option value="all">💿 Все типы релизов</option>
+              <option value="Album">Album (Альбомные)</option>
+              <option value="POB">POB (Предзаказ ✨)</option>
+              <option value="Lucky Draw">Lucky Draw (Редкие ✨)</option>
+              <option value="Fanmeet">Fanmeet (Фанмитинг)</option>
+            </select>
+
+            <select id="statusFilter" class="px-3.5 py-2 rounded-xl bg-white/90 border border-purple-100 text-xs sm:text-sm font-semibold text-slate-700 outline-none focus:border-purple-400">
+              <option value="all">📦 Все статусы наличия</option>
+              <option value="available">🟢 Только в наличии</option>
+              <option value="reserved">🟡 Бронь</option>
+              <option value="sold">🔴 Продано</option>
+            </select>
+
+            <button id="resetFiltersBtn" class="px-3 py-2 rounded-xl text-xs font-semibold text-purple-700 hover:bg-purple-50 transition">
+              Сбросить
+            </button>
+          </div>
+        </div>
+
+        <!-- Group Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar" id="groupPillsContainer">
+          <!-- JS injects group buttons -->
+        </div>
+      </div>
+
+      <!-- Quick Demo Actions Bar for Client Presentation -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-500">
+        <div>
+          Найдено позиций в каталоге: <strong id="catalogCountLabel" class="text-slate-800">12</strong>
+          <span class="hidden sm:inline ml-2 text-slate-400">• Нажмите на фото карты, чтобы посмотреть подробную информацию о релизе</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="demoFillFullSetBtn" class="px-3 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 font-semibold transition">
+            ⚡ Тест: Собрать Full Set (8 карт за 2000 ₽)
+          </button>
+          <button id="demoClearCartBtn" class="px-2.5 py-1 rounded-lg bg-slate-200/70 hover:bg-slate-300/70 text-slate-700 font-medium transition">
+            Очистить корзину
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- КАТАЛОГ ФОТОКАРТ (Сетка: 2 колонки на мобильных, 4 на десктопе) -->
+    <section>
+      <div id="catalogGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <!-- JS injects cards here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyCatalogState" class="hidden glass rounded-3xl p-12 text-center space-y-4">
+        <div class="text-4xl">🔍</div>
+        <h3 class="text-lg font-bold text-slate-800">По выбранным фильтрам карт не найдено</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">Попробуйте сбросить фильтры группы или типа релиза, чтобы увидеть все доступные позиции.</p>
+        <button onclick="resetAllFilters()" class="px-5 py-2.5 rounded-2xl bg-purple-600 text-white text-sm font-bold shadow-md hover:bg-purple-700 transition">
+          Показать все карты
+        </button>
+      </div>
+    </section>
+
+    <!-- ГАРАНТИИ И УПАКОВКА (Блок доверия) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+      <div class="glass rounded-3xl p-5 flex items-start gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-pink-100 text-pink-700 flex items-center justify-center text-xl shrink-0">✨</div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">100% Новые из официальных магазинов</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Все фотокарты абсолютно новые, закупаются напрямую в официальных магазинах Кореи и Японии (Weverse, Soundwave, Withmuu) и учитываются в чартах Hanteo/Circle.
+          </p>
+        </div>
+      </div>
+      <div class="glass rounded-3xl p-5 flex items-start gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl shrink-0">🛡️</div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">Бронебойная упаковка включена</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Каждая карта упаковывается в плотный протектор, жесткий <strong>топлоадер (Toploader)</strong> и сэндвич из переплетного картона без доплат. Милые стикеры в подарок!
+          </p>
+        </div>
+      </div>
+      <div class="glass rounded-3xl p-5 flex items-start gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl shrink-0">✈️</div>
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">Заказ в 1 клик через @PocaBot</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Никаких длинных анкет и паролей. Собирайте корзину, получайте автоматическую скидку до 1200 ₽ и отправляйте готовый список нашему боту <strong>@PocaBot</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER (Подвал сайта) -->
+  <footer class="mt-16 border-t border-purple-200/60 bg-white/50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs sm:text-sm text-slate-600">
+      <div class="space-y-1.5">
+        <div class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+          <span class="text-purple-600">✦</span> PocaDrop <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">pocadrop.ru</span>
+        </div>
+        <p>Магазин оригинальных коллекционных K-Pop фотокарт с прогрессивными скидками.</p>
+        <p class="text-slate-400 text-xs">© 2026 PocaDrop (pocadrop.ru) • Оформление заказов: <a href="https://t.me/PocaBot" target="_blank" class="text-purple-600 font-semibold hover:underline">@PocaBot</a></p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" onclick="openInfoModal('⭐ Отзывы покупателей (540+)', 'Здесь открывается ссылка на Telegram-канал PocaDrop с отзывами и фото распаковок покупателей!')" class="px-4 py-2 rounded-xl bg-white border border-purple-200 font-semibold text-purple-800 hover:bg-purple-50 transition">
+          ⭐ Отзывы покупателей (540+)
+        </button>
+        <button type="button" onclick="openInfoModal('📋 Правила и доставка PocaDrop', '1. Бронь держится 24 часа после отправки заказа в @PocaBot.\n2. Отправка Почтой РФ / СДЭК / Яндекс Доставкой в течение 1-2 дней.\n3. Жесткий топлоадер и защитный картон бесплатно к каждому заказу!')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition">
+          📋 Правила и доставка
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ИНФОРМАЦИОННОЕ МОДАЛЬНОЕ ОКНО (Для отзывов и правил) -->
+  <div id="infoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="glass-strong rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="infoModalTitle" class="text-lg font-extrabold text-slate-900">Информация</h3>
+        <button onclick="closeInfoModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+      </div>
+      <p id="infoModalBody" class="text-sm text-slate-600 whitespace-pre-line leading-relaxed"></p>
+      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm transition">Понятно</button>
+    </div>
+  </div>
+
+  <!-- ПЛАВАЮЩАЯ НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ ДЛЯ МОБИЛЬНЫХ (Mobile-first) -->
+  <div id="mobileBottomCartBar" class="fixed bottom-3 inset-x-3 z-30 md:hidden hidden">
+    <button
+      onclick="toggleCartDrawer(true)"
+      class="w-full p-3.5 rounded-2xl bg-slate-900/95 backdrop-blur-lg text-white shadow-2xl shadow-purple-950/40 border border-white/15 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-3">
+        <div id="mobileCartCountBubble" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-500 font-extrabold text-sm flex items-center justify-center">
+          0
+        </div>
+        <div class="text-left">
+          <div class="text-xs font-bold text-white">Ваш заказ в корзине</div>
+          <div id="mobileUpsellSubtext" class="text-[11px] text-purple-200">Нажмите для оформления</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div id="mobileCartTotalPrice" class="text-sm font-extrabold text-white">0 ₽</div>
+        <div id="mobileCartDiscountTag" class="text-[10px] text-emerald-300 font-semibold">Скидка: 0 ₽</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЬНОГО ПРОСМОТРА КАРТЫ -->
+  <div id="cardModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/60 backdrop-blur-sm">
+    <div class="glass-strong rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-white relative animate-fadeIn">
+      <!-- Close button -->
+      <button onclick="closeCardModal()" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 font-bold shadow flex items-center justify-center transition">
+        ✕
+      </button>
+
+      <div class="grid grid-cols-1 md:grid-cols-12">
+        <!-- Left: Card Photo Preview -->
+        <div class="md:col-span-6 bg-slate-900 relative flex flex-col justify-center p-6 min-h-[360px] sm:min-h-[420px] items-center">
+          <div class="relative w-56 sm:w-64 photocard-ratio rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 my-auto group" id="modalMediaViewport">
+            <img id="modalCardImage" src="" alt="Card preview" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          </div>
+          <div class="mt-4 px-3 py-1.5 rounded-full bg-white/10 text-purple-200 text-[11px] font-semibold tracking-wide">
+            ✦ Официальный релиз из Кореи (Official Merch)
+          </div>
+        </div>
+
+        <!-- Right: Card Details & Action -->
+        <div class="md:col-span-6 p-6 sm:p-7 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="modalCardId" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">#KP-01</span>
+              <span id="modalReleaseBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800">POB</span>
+              <span id="modalStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800">В наличии</span>
+            </div>
+
+            <div>
+              <div id="modalGroupName" class="text-xs font-bold uppercase tracking-wider text-purple-600">STRAY KIDS</div>
+              <h3 id="modalMemberName" class="text-2xl font-extrabold text-slate-900 mt-0.5">Felix (Феликс)</h3>
+              <p id="modalAlbumTitle" class="text-xs text-slate-500 mt-1">Релиз: 5-STAR (Soundwave POB Exclusive)</p>
+            </div>
+
+            <!-- Authenticity & Condition Box -->
+            <div id="modalConditionBox" class="p-3.5 rounded-2xl border bg-slate-50 space-y-1">
+              <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span id="modalConditionIcon">💎</span>
+                <span id="modalConditionTitle">Новая карта (Official Mint)</span>
+              </div>
+              <p id="modalConditionDesc" class="text-xs text-slate-600 leading-relaxed">
+                Абсолютно новая оригинальная карта из официального релиза. Хранится в индивидуальном защитном протекторе.
+              </p>
+            </div>
+
+            <!-- Price Info -->
+            <div class="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-100 flex items-center justify-between">
+              <div>
+                <div class="text-xs text-slate-500">Базовая цена (1 шт.)</div>
+                <div class="text-xl font-extrabold text-slate-900">400 ₽</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-purple-700 font-semibold">В сете из 8 карт</div>
+                <div class="text-base font-extrabold text-purple-700">всего 250 ₽ / шт.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 pt-2">
+            <button id="modalActionBtn" class="w-full py-3.5 px-5 rounded-2xl font-bold text-sm shadow-lg transition flex items-center justify-center gap-2">
+              Положить в корзину
+            </button>
+            <p class="text-[11px] text-center text-slate-400">
+              🛡️ Топлоадер + переплетный картон уже включены в стоимость
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- УМНАЯ КОРЗИНА (Sidebar справа на ПК / Bottom Sheet на смартфонах) -->
+  <div id="cartDrawerBackdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+
+  <aside
+    id="cartDrawer"
+    class="fixed z-50 inset-x-0 bottom-0 md:inset-y-0 md:right-0 md:left-auto w-full md:w-[440px] max-h-[90vh] md:max-h-screen glass-strong rounded-t-3xl md:rounded-none md:rounded-l-3xl shadow-2xl flex flex-col transform translate-y-full md:translate-y-0 md:translate-x-full transition-transform duration-300 ease-out"
+  >
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-slate-200/80 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="text-xl">🛍️</span>
+        <h2 class="text-lg font-extrabold text-slate-900">Ваш заказ в PocaDrop</h2>
+        <span id="drawerCountTag" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800">0 шт.</span>
+      </div>
+      <button onclick="toggleCartDrawer(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
+        ✕
+      </button>
+    </div>
+
+    <!-- Dynamic Upsell Banner inside Cart -->
+    <div id="drawerUpsellBox" class="mx-5 mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md space-y-2">
+      <div class="flex items-center justify-between text-xs font-bold">
+        <span id="drawerUpsellTitle">Добавьте еще 1 карту для получения следующего уровня скидки!</span>
+        <span id="drawerTierProgressLabel">0 / 8</span>
+      </div>
+      <div class="w-full h-2 rounded-full bg-white/25 overflow-hidden">
+        <div id="drawerProgressBar" class="h-full bg-white rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Scrollable List -->
+    <div id="cartItemsList" class="flex-1 overflow-y-auto p-5 space-y-3">
+      <!-- JS injects cart items -->
+    </div>
+
+    <!-- Drawer Footer: Calculation, Telegram Message Preview & CTA -->
+    <div class="p-5 border-t border-slate-200/80 bg-white/80 space-y-4">
+      
+      <!-- Random Card Quick Add inside Cart -->
+      <div class="p-3 rounded-2xl bg-amber-50/90 border border-amber-200/80 flex items-center justify-between text-xs">
+        <div>
+          <span class="font-bold text-slate-800">🎲 Random photocard (карта наугад)</span>
+          <div class="text-[11px] text-slate-500">Фиксированная цена 350 ₽ • вне шкалы сета</div>
+        </div>
+        <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-amber-200">
+          <button onclick="changeRandomCount(-1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">−</button>
+          <span id="drawerRandomCount" class="font-extrabold text-slate-800 w-4 text-center">0</span>
+          <button onclick="changeRandomCount(1)" class="w-6 h-6 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold">+</button>
+        </div>
+      </div>
+
+      <!-- Summary Lines -->
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between text-slate-500 text-xs">
+          <span>Стоимость без скидки:</span>
+          <span id="drawerOriginalSum" class="line-through">0 ₽</span>
+        </div>
+        <div class="flex justify-between text-emerald-700 font-semibold text-xs">
+          <span>Ваш бонус составил:</span>
+          <span id="drawerDiscountSum">0 ₽</span>
+        </div>
+        <div class="flex justify-between items-baseline pt-1 border-t border-slate-200">
+          <span class="font-bold text-slate-800">Итого к оплате с учетом скидки:</span>
+          <span id="drawerFinalSum" class="text-2xl font-extrabold text-purple-900">0 ₽</span>
+        </div>
+      </div>
+
+      <!-- Order Text Preview & Copy Helper -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] text-slate-500">
+          <span>При нажатии заказ автоматически копируется в буфер:</span>
+          <button onclick="toggleMessagePreview()" class="text-purple-600 font-semibold hover:underline">
+            Показать список заказа
+          </button>
+        </div>
+
+        <!-- Collapsible Generated Telegram Text Preview -->
+        <div id="tgMessagePreviewContainer" class="hidden space-y-1.5 pt-1">
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span>Готовый текст для отправки в @PocaBot:</span>
+            <button onclick="copyOrderText()" id="copyTextBtn" class="text-purple-700 font-bold hover:underline">📋 Скопировать вручную</button>
+          </div>
+          <pre id="tgMessagePreview" class="p-3 rounded-xl bg-slate-900 text-slate-100 text-[11px] font-mono whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto"></pre>
+        </div>
+      </div>
+
+      <!-- Copy Confirmation Banner (appears on checkout click) -->
+      <div id="checkoutCopyNotice" class="hidden p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold text-center">
+        ✅ Текст заказа скопирован! В открывшемся боте @PocaBot нажмите «Старт» и вставьте (Ctrl+V) ваш заказ.
+      </div>
+
+      <!-- Main CTA Button -->
+      <button
+        id="checkoutTelegramBtn"
+        onclick="checkoutViaTelegram()"
+        class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-purple-500/25 flex items-center justify-center gap-2.5 transition active:scale-98 disabled:opacity-40 disabled:pointer-events-none"
+      >
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.141.121.099.154.232.17.325.015.094.034.31.019.478z"/>
+        </svg>
+        <span>Оформить заказ через @PocaBot</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- JAVASCRIPT ENGINE: КАТАЛОГ, МАТЕМАТИКА СКИДОК И ДИПЛИНКИ -->
+  <script>
+    /*************************************************************************
+     * 0. КОНФИГУРАЦИЯ МАГАЗИНА POCADROP.RU
+     *************************************************************************/
+    const TELEGRAM_BOT_USERNAME = "PocaBot";
+
+    /*************************************************************************
+     * 1. МАССИВ ПРОГРЕССИВНЫХ СКИДОК
+     *************************************************************************/
+    const DISCOUNT_TIERS = [
+      { count: 1, price: 400,  discount: 0,    label: '1 фотокарта' },
+      { count: 2, price: 750,  discount: 50,   label: '2 фотокарты' },
+      { count: 3, price: 1050, discount: 150,  label: '3 фотокарты' },
+      { count: 4, price: 1300, discount: 300,  label: '4 фотокарты' },
+      { count: 5, price: 1500, discount: 500,  label: '5 фотокарт' },
+      { count: 6, price: 1650, discount: 750,  label: '6 фотокарт' },
+      { count: 7, price: 1850, discount: 950,  label: '7 фотокарт' },
+      { count: 8, price: 2000, discount: 1200, label: '8 карт • FULL SET' }
+    ];
+    const RANDOM_CARD_PRICE = 350;
+
+    /*************************************************************************
+     * 2. ПРИВЯЗКА ФОТОГРАФИЙ + FALLBACK
+     *************************************************************************/
+    const DRIVE_PHOTOS = [
+      "https://drive.google.com/thumbnail?id=1GU_jsj2LzFLcKIZOdU65IR3-VHKs-2lB&sz=w800",
+      "https://drive.google.com/thumbnail?id=1jMRC2Dzfd9euUf7vPjFubLSsaN5PYzky&sz=w800",
+      "https://drive.google.com/thumbnail?id=1y2iaI72IweNpXdYTeto88blMoI-NyAbp&sz=w800",
+      "https://drive.google.com/thumbnail?id=1gp5-V79dVuHZxf0E6fHdCIeViWBSXo1J&sz=w800",
+      "https://drive.google.com/thumbnail?id=10e4rt2SPFU8ajnxWDFT0llnll84Ba3Zk&sz=w800",
+      "https://drive.google.com/thumbnail?id=1MM5KpOYsm27O6OL7wAeWzY5jAt8GWAYi&sz=w800"
+    ];
+
+    function createFallbackCardArt(member, group, textureLabel, bgHex1, bgHex2) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 850" width="550" height="850">
+        <defs>
+          <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${bgHex1}"/>
+            <stop offset="100%" stop-color="${bgHex2}"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="50%" cy="35%" r="55%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="550" height="850" rx="36" fill="url(#g)"/>
+        <circle cx="275" cy="310" r="240" fill="url(#glow)"/>
+        <rect x="28" y="28" width="494" height="794" rx="26" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="3"/>
+        <text x="55" y="78" font-family="Plus Jakarta Sans, sans-serif" font-size="22" font-weight="800" fill="rgba(255,255,255,0.9)" letter-spacing="3">${group.toUpperCase()}</text>
+        <circle cx="275" cy="360" r="145" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
+        <text x="275" y="385" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="78">✨</text>
+        <rect x="55" y="610" width="440" height="165" rx="24" fill="rgba(255,255,255,0.85)"/>
+        <text x="80" y="665" font-family="Plus Jakarta Sans, sans-serif" font-size="38" font-weight="800" fill="#1e1b4b">${member}</text>
+        <text x="80" y="708" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="600" fill="#6b21a8">${textureLabel}</text>
+        <text x="80" y="745" font-family="monospace" font-size="17" font-weight="700" fill="#64748b">POCADROP.RU • OFFICIAL 55x85mm</text>
+      </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    /*************************************************************************
+     * 3. БАЗА КАРТ
+     *************************************************************************/
+    const CATALOG_DATA = [
+      {
+        id: "KP-101",
+        member: "Felix (Феликс)",
+        group: "Stray Kids",
+        gender: "boy",
+        releaseType: "POB",
+        album: "ATE • Soundwave Pre-Order Benefit (Glitter Ver.)",
+        condition: "Новая (Official)",
+        conditionNote: "Новая карта из официального магазина Soundwave (Корея). В защитном протекторе.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[0],
+        fallbackUrl: createFallbackCardArt("Felix", "Stray Kids", "Glitter Holo Concept", "#a855f7", "#ec4899")
+      },
+      {
+        id: "KP-102",
+        member: "Hyunjin (Хёнджин)",
+        group: "Stray Kids",
+        gender: "boy",
+        releaseType: "Lucky Draw",
+        album: "ROCK-STAR • KMS Lucky Draw PVC (Navy Wool)",
+        condition: "Новая (Official)",
+        conditionNote: "Оригинальная плотная ПВХ-карта Lucky Draw из официального релиза.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[1],
+        fallbackUrl: createFallbackCardArt("Hyunjin", "Stray Kids", "Navy Wool Concept", "#3b82f6", "#1d4ed8")
+      },
+      {
+        id: "KP-103",
+        member: "Wonyoung (Вонён)",
+        group: "IVE",
+        gender: "girl",
+        releaseType: "POB",
+        album: "IVE SWITCH • Starship Square POB (Silver Ver.)",
+        condition: "Новая (Official)",
+        conditionNote: "Новая эксклюзивная карта предзаказа из официального магазина Starship Square.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[2],
+        fallbackUrl: createFallbackCardArt("Wonyoung", "IVE", "Silver Mirror Ver.", "#f472b6", "#c084fc")
+      },
+      {
+        id: "KP-104",
+        member: "Jungkook (Чонгук)",
+        group: "BTS",
+        gender: "boy",
+        releaseType: "Album",
+        album: "GOLDEN • Substance Ver. Official Album Card",
+        condition: "Новая (Official)",
+        conditionNote: "Новая официальная альбомная карта (Weverse Shop Korea), сразу помещена в протектор.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[3],
+        fallbackUrl: createFallbackCardArt("Jungkook", "BTS", "Charcoal Velvet Ver.", "#475569", "#1e293b")
+      },
+      {
+        id: "KP-105",
+        member: "Karina (Карина)",
+        group: "aespa",
+        gender: "girl",
+        releaseType: "Lucky Draw",
+        album: "Armageddon • M2U Lucky Draw Exclusive",
+        condition: "Новая (Official)",
+        conditionNote: "Лимитированная новая карта из официального ивента M2U Record в Сеуле.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[4],
+        fallbackUrl: createFallbackCardArt("Karina", "aespa", "Supernova Navy Ver.", "#6366f1", "#a855f7")
+      },
+      {
+        id: "KP-106",
+        member: "Yeonjun (Ёнджун)",
+        group: "TXT",
+        gender: "boy",
+        releaseType: "Fanmeet",
+        album: "PRESENT X TOGETHER • Seoul Fanmeeting Merch",
+        condition: "Новая (Official)",
+        conditionNote: "Новая коллекционная карта из официального мерча фанмитинга в Сеуле.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[5],
+        fallbackUrl: createFallbackCardArt("Yeonjun", "TXT", "Charcoal Velvet Concept", "#8b5cf6", "#ec4899")
+      },
+      {
+        id: "KP-107",
+        member: "Hanni (Ханни)",
+        group: "NewJeans",
+        gender: "girl",
+        releaseType: "POB",
+        album: "Get Up • Weverse Shop Japan POB Holo",
+        condition: "Новая (Official)",
+        conditionNote: "Оригинальный японский предзаказ из официального магазина Weverse Shop Japan.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[0],
+        fallbackUrl: createFallbackCardArt("Hanni", "NewJeans", "Glitter Bunny Ver.", "#f9a8d4", "#93c5fd")
+      },
+      {
+        id: "KP-108",
+        member: "Bang Chan (Бан Чан)",
+        group: "Stray Kids",
+        gender: "boy",
+        releaseType: "Album",
+        album: "5-STAR • Limited Ver. Photocard",
+        condition: "Новая (Official)",
+        conditionNote: "Абсолютно новая карта из лимитированной версии официального альбома 5-STAR.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[2],
+        fallbackUrl: createFallbackCardArt("Bang Chan", "Stray Kids", "Silver Leader Ver.", "#64748b", "#4f46e5")
+      },
+      {
+        id: "KP-109",
+        member: "Chaewon (Чэвон)",
+        group: "LE SSERAFIM",
+        gender: "girl",
+        releaseType: "Fanmeet",
+        album: "FEARNADA 2026 • Official MD Card",
+        condition: "Новая (Official)",
+        conditionNote: "Новая карта из официального стаффа FEARNADA (Weverse Official MD).",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[1],
+        fallbackUrl: createFallbackCardArt("Chaewon", "LE SSERAFIM", "Navy Fearless Ver.", "#ec4899", "#f43f5e")
+      },
+      {
+        id: "KP-110",
+        member: "Mingyu (Мингю)",
+        group: "SEVENTEEN",
+        gender: "boy",
+        releaseType: "Lucky Draw",
+        album: "SEVENTEENTH HEAVEN • Beatroad Lucky Draw",
+        condition: "Новая (Official)",
+        conditionNote: "Новая редкая карта из официального магазина Beatroad Korea.",
+        status: "available",
+        photoUrl: DRIVE_PHOTOS[4],
+        fallbackUrl: createFallbackCardArt("Mingyu", "SEVENTEEN", "Navy Wool Concept", "#0ea5e9", "#6366f1")
+      },
+      {
+        id: "KP-111",
+        member: "Lee Know (Ли Ноу)",
+        group: "Stray Kids",
+        gender: "boy",
+        releaseType: "POB",
+        album: "MAXIDENT • Apple Music POB",
+        condition: "Новая (Official)",
+        conditionNote: "Карта забронирована другим покупателем (ожидает оплаты).",
+        status: "reserved",
+        photoUrl: DRIVE_PHOTOS[3],
+        fallbackUrl: createFallbackCardArt("Lee Know", "Stray Kids", "Charcoal Cat Ver.", "#a855f7", "#6366f1")
+      },
+      {
+        id: "KP-112",
+        member: "Winter (Винтер)",
+        group: "aespa",
+        gender: "girl",
+        releaseType: "Lucky Draw",
+        album: "Drama • Soundwave Lucky Draw R1",
+        condition: "Новая (Official)",
+        conditionNote: "Карта уже выкуплена и отправлена коллекционеру.",
+        status: "sold",
+        photoUrl: DRIVE_PHOTOS[5],
+        fallbackUrl: createFallbackCardArt("Winter", "aespa", "Silver Drama Ver.", "#94a3b8", "#475569")
+      }
+    ];
+
+    /*************************************************************************
+     * 4. СОСТОЯНИЕ ПРИЛОЖЕНИЯ (STATE)
+     *************************************************************************/
+    let cartIds = ["KP-101", "KP-102"];
+    let randomCardCount = 0;
+
+    let currentFilters = {
+      search: "",
+      gender: "all",
+      group: "all",
+      releaseType: "all",
+      status: "all"
+    };
+
+    let activeModalCardId = null;
+
+    /*************************************************************************
+     * 5. МАТЕМАТИЧЕСКИЙ ДВИЖОК РАСЧЕТА СКИДКИ
+     *************************************************************************/
+    function calculateCartTotals() {
+      const standardCount = cartIds.length;
+      const baseCostStandard = standardCount * 400;
+
+      let discountedStandard = 0;
+      if (standardCount > 0) {
+        const fullSets = Math.floor(standardCount / 8);
+        const remainder = standardCount % 8;
+        discountedStandard += fullSets * 2000;
+        if (remainder > 0) {
+          const tier = DISCOUNT_TIERS.find(t => t.count === remainder);
+          discountedStandard += tier ? tier.price : remainder * 400;
+        }
+      }
+
+      const discountAmount = baseCostStandard - discountedStandard;
+      const randomTotal = randomCardCount * RANDOM_CARD_PRICE;
+      const finalPayable = discountedStandard + randomTotal;
+      const totalItemsCount = standardCount + randomCardCount;
+
+      let upsellMessage = "";
+      const mod8 = standardCount % 8;
+      if (standardCount === 0) {
+        upsellMessage = "Добавьте 2 карты в корзину, чтобы получить первую скидку 50 ₽!";
+      } else if (mod8 === 0) {
+        upsellMessage = "🎉 Вы собрали FULL SET (8 карт)! Максимальная выгода 1 200 ₽ активирована!";
+      } else {
+        const nextCount = mod8 + 1;
+        const currentTier = DISCOUNT_TIERS.find(t => t.count === mod8);
+        const nextTier = DISCOUNT_TIERS.find(t => t.count === nextCount);
+        const extraDiscount = nextTier.discount - currentTier.discount;
+        const remainingToFullSet = 8 - mod8;
+        upsellMessage = `Добавьте еще 1 карту для следующего уровня (скидка вырастет еще на +${extraDiscount} ₽! До Full Set осталось: ${remainingToFullSet} шт.)`;
+      }
+
+      return {
+        standardCount,
+        randomCardCount,
+        totalItemsCount,
+        OriginalSum: baseCostStandard + randomTotal,
+        discountAmount,
+        finalPayable,
+        upsellMessage
+      };
+    }
+
+    /*************************************************************************
+     * 6. РЕНДЕР ТАБЛИЦЫ СКИДОК В HERO-БЛОКЕ
+     *************************************************************************/
+    function renderDiscountTiers() {
+      const grid = document.getElementById("discountTiersGrid");
+      const currentCount = cartIds.length;
+      const activeTierNumber = currentCount > 0 ? ((currentCount - 1) % 8) + 1 : 0;
+
+      grid.innerHTML = DISCOUNT_TIERS.map(tier => {
+        const isCurrent = tier.count === activeTierNumber;
+        const isFullSet = tier.count === 8;
+        const perCard = Math.round(tier.price / tier.count);
+
+        return `
+          <div
+            onclick="demoSelectTierCount(${tier.count})"
+            title="Нажмите, чтобы протестировать набор из ${tier.count} карт"
+            class="cursor-pointer rounded-2xl p-3 border transition-all select-none relative overflow-hidden ${
+              isCurrent
+                ? "bg-gradient-to-br from-purple-600 to-pink-500 text-white border-transparent shadow-lg shadow-purple-500/30 scale-[1.03]"
+                : isFullSet
+                  ? "bg-gradient-to-br from-amber-50/90 to-pink-50/90 border-amber-300/80 hover:border-purple-400 text-slate-800"
+                  : "bg-white/75 hover:bg-white border-purple-100 text-slate-800"
+            }"
+          >
+            ${isFullSet ? `<span class="absolute top-1.5 right-1.5 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-400 text-slate-950">Хит</span>` : ""}
+            <div class="text-[11px] font-bold ${isCurrent ? "text-purple-100" : "text-slate-500"}">${tier.label}</div>
+            <div class="text-base sm:text-lg font-extrabold mt-0.5">${tier.price} ₽</div>
+            <div class="flex items-center justify-between mt-1.5 pt-1.5 border-t ${isCurrent ? "border-white/20" : "border-slate-100"} text-[10px]">
+              <span class="${isCurrent ? "text-white font-bold" : tier.discount > 0 ? "text-emerald-600 font-bold" : "text-slate-400"}">
+                ${tier.discount > 0 ? `−${tier.discount} ₽ выгода` : "без скидки"}
+              </span>
+              <span class="${isCurrent ? "text-purple-100" : "text-slate-400"}">${perCard} ₽/шт</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /*************************************************************************
+     * 7. РЕНДЕР КНОПОК ГРУПП И КАТАЛОГА КАРТ
+     *************************************************************************/
+    function renderGroupPills() {
+      const container = document.getElementById("groupPillsContainer");
+      const groups = ["all", ...new Set(
+        CATALOG_DATA
+          .filter(c => currentFilters.gender === "all" || c.gender === currentFilters.gender)
+          .map(c => c.group)
+      )];
+
+      container.innerHTML = groups.map(groupName => {
+        const active = currentFilters.group === groupName;
+        const label = groupName === "all" ? "✨ Все артисты" : groupName;
+        return `
+          <button
+            onclick="setGroupFilter('${groupName}')"
+            class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition border ${
+              active
+                ? "bg-purple-600 text-white border-purple-600 shadow-sm shadow-purple-300"
+                : "bg-white/80 text-slate-700 border-purple-100 hover:border-purple-300"
+            }"
+          >
+            ${label}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function getFilteredCards() {
+      return CATALOG_DATA.filter(card => {
+        if (currentFilters.gender !== "all" && card.gender !== currentFilters.gender) return false;
+        if (currentFilters.group !== "all" && card.group !== currentFilters.group) return false;
+        if (currentFilters.releaseType !== "all" && card.releaseType !== currentFilters.releaseType) return false;
+        if (currentFilters.status !== "all" && card.status !== currentFilters.status) return false;
+        if (currentFilters.search.trim() !== "") {
+          const q = currentFilters.search.toLowerCase();
+          const match =
+            card.member.toLowerCase().includes(q) ||
+            card.group.toLowerCase().includes(q) ||
+            card.id.toLowerCase().includes(q) ||
+            card.album.toLowerCase().includes(q);
+          if (!match) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById("catalogGrid");
+      const emptyState = document.getElementById("emptyCatalogState");
+      const countLabel = document.getElementById("catalogCountLabel");
+
+      const filtered = getFilteredCards();
+      countLabel.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+      emptyState.classList.add("hidden");
+
+      grid.innerHTML = filtered.map(card => {
+        const inCart = cartIds.includes(card.id);
+        const isAvailable = card.status === "available";
+        const isHolo = card.releaseType === "POB" || card.releaseType === "Lucky Draw";
+
+        let statusBadge = "";
+        if (card.status === "available") {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/90 text-white shadow">🟢 В наличии</span>`;
+        } else if (card.status === "reserved") {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/95 text-white shadow">⏳ Бронь</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700/90 text-white shadow">🔴 Продано</span>`;
+        }
+
+        const releaseBadgeClass = isHolo
+          ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white"
+          : "bg-white/90 text-slate-800";
+
+        const conditionBadge = `<span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-lg inline-flex items-center gap-1">💎 ${card.condition}</span>`;
+
+        let buttonHtml = "";
+        if (!isAvailable) {
+          buttonHtml = `
+            <button disabled class="w-full py-2.5 px-3 rounded-xl bg-slate-200 text-slate-400 font-bold text-xs cursor-not-allowed">
+              ${card.status === "reserved" ? "Забронировано" : "Продано"}
+            </button>
+          `;
+        } else if (inCart) {
+          buttonHtml = `
+            <button
+              onclick="toggleCardInCart('${card.id}')"
+              class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-rose-600 text-white font-bold text-xs shadow-md transition group/btn"
+            >
+              <span class="group-hover/btn:hidden">✓ В корзине (Убрать)</span>
+              <span class="hidden group-hover/btn:inline">✕ Убрать из заказа</span>
+            </button>
+          `;
+        } else {
+          buttonHtml = `
+            <button
+              onclick="toggleCardInCart('${card.id}')"
+              class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition active:scale-95"
+            >
+              + Положить в корзину
+            </button>
+          `;
+        }
+
+        return `
+          <article class="glass rounded-3xl p-3 sm:p-3.5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-900/10 ${!isAvailable ? "opacity-65 grayscale-[35%]" : ""}">
+            <div>
+              <!-- Image Container -->
+              <div
+                onclick="openCardModal('${card.id}')"
+                class="cursor-pointer relative photocard-ratio w-full rounded-2xl overflow-hidden bg-purple-100 mb-3 shadow-inner ${isHolo ? "holo-card" : ""}"
+              >
+                <img
+                  src="${card.photoUrl}"
+                  onerror="this.onerror=null; this.src='${card.fallbackUrl}';"
+                  alt="${card.member}"
+                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  loading="lazy"
+                />
+
+                <!-- Top Overlays -->
+                <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1 pointer-events-none">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow ${releaseBadgeClass}">
+                    ${isHolo ? "✨ " : ""}${card.releaseType}
+                  </span>
+                  ${statusBadge}
+                </div>
+
+                <!-- Bottom Card Info Hint -->
+                <div class="absolute bottom-2 inset-x-2 flex items-center justify-between px-2.5 py-1 rounded-xl bg-black/55 backdrop-blur-xs text-white text-[10px] font-medium">
+                  <span>#${card.id}</span>
+                  <span class="flex items-center gap-1">✦ Official Merch</span>
+                </div>
+              </div>
+
+              <!-- Card Text Metadata -->
+              <div class="px-1 space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-purple-600">
+                  <span>${card.group}</span>
+                  <span class="text-slate-900 font-extrabold text-xs">400 ₽</span>
+                </div>
+                <h3 onclick="openCardModal('${card.id}')" class="cursor-pointer font-extrabold text-slate-900 text-sm sm:text-base truncate hover:text-purple-700 transition">
+                  ${card.member}
+                </h3>
+                <p class="text-[11px] text-slate-500 line-clamp-1" title="${card.album}">
+                  ${card.album}
+                </p>
+                <div class="pt-1">
+                  ${conditionBadge}
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="mt-3 pt-2 border-t border-purple-100/60">
+              ${buttonHtml}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    /*************************************************************************
+     * 8. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА КОРЗИНЫ И ДИПЛИНКА TELEGRAM
+     *************************************************************************/
+    function generateTelegramMessage() {
+      const totals = calculateCartTotals();
+      const lines = [
+        "Здравствуйте! Я хочу оформить заказ на сайте pocadrop.ru:"
+      ];
+
+      cartIds.forEach(id => {
+        const card = CATALOG_DATA.find(c => c.id === id);
+        if (card) {
+          lines.push(`• ${card.id} - ${card.group} - ${card.member} (${card.releaseType})`);
+        }
+      });
+
+      if (randomCardCount > 0) {
+        lines.push(`• RANDOM-PC - Random Photocard (карта наугад) × ${randomCardCount} шт. (${randomCardCount * RANDOM_CARD_PRICE} ₽)`);
+      }
+
+      lines.push("");
+      lines.push(`Общее количество: ${totals.totalItemsCount} шт.`);
+      if (totals.discountAmount > 0) {
+        lines.push(`Скидка по прогрессивной шкале: -${totals.discountAmount} ₽`);
+      }
+      lines.push(`Итоговая сумма со скидкой: ${totals.finalPayable} ₽.`);
+      lines.push("Жду реквизиты для оплаты!");
+
+      return lines.join("\n");
+    }
+
+    function updateCartUI() {
+      const totals = calculateCartTotals();
+
+      document.getElementById("headerCartBadge").textContent = totals.totalItemsCount;
+      document.getElementById("headerCartPrice").textContent = `${totals.finalPayable} ₽`;
+
+      document.getElementById("randomCountDisplay").textContent = randomCardCount;
+      document.getElementById("drawerRandomCount").textContent = randomCardCount;
+
+      document.getElementById("activeTierBadge").textContent = `Выбрано карт: ${totals.standardCount} шт.`;
+      document.getElementById("heroUpsellText").textContent = totals.upsellMessage;
+      const heroBonusPill = document.getElementById("heroBonusPill");
+      if (totals.discountAmount > 0) {
+        heroBonusPill.textContent = `Ваша скидка: −${totals.discountAmount} ₽`;
+        heroBonusPill.classList.remove("hidden");
+      } else {
+        heroBonusPill.classList.add("hidden");
+      }
+
+      const mobileBar = document.getElementById("mobileBottomCartBar");
+      if (totals.totalItemsCount > 0) {
+        mobileBar.classList.remove("hidden");
+        document.getElementById("mobileCartCountBubble").textContent = totals.totalItemsCount;
+        document.getElementById("mobileCartTotalPrice").textContent = `${totals.finalPayable} ₽`;
+        document.getElementById("mobileCartDiscountTag").textContent =
+          totals.discountAmount > 0 ? `Выгода −${totals.discountAmount} ₽` : "Открыть корзину →";
+      } else {
+        mobileBar.classList.add("hidden");
+      }
+
+      document.getElementById("drawerCountTag").textContent = `${totals.totalItemsCount} шт.`;
+      document.getElementById("drawerUpsellTitle").textContent = totals.upsellMessage;
+      const mod8 = totals.standardCount === 0 ? 0 : ((totals.standardCount - 1) % 8) + 1;
+      document.getElementById("drawerTierProgressLabel").textContent = `${mod8} / 8`;
+      document.getElementById("drawerProgressBar").style.width = `${(mod8 / 8) * 100}%`;
+
+      const listEl = document.getElementById("cartItemsList");
+      if (cartIds.length === 0 && randomCardCount === 0) {
+        listEl.innerHTML = `
+          <div class="text-center py-12 space-y-2 text-slate-400">
+            <div class="text-4xl">🛒</div>
+            <div class="font-bold text-slate-600 text-sm">Ваша корзина пока пуста</div>
+            <p class="text-xs max-w-xs mx-auto">Выберите карты в каталоге PocaDrop или добавьте Random Photocard, чтобы увидеть автоматический расчет скидки.</p>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = cartIds.map(id => {
+          const card = CATALOG_DATA.find(c => c.id === id);
+          if (!card) return "";
+          return `
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-white border border-purple-100 shadow-xs">
+              <div class="flex items-center gap-3 min-w-0">
+                <img
+                  src="${card.photoUrl}"
+                  onerror="this.onerror=null; this.src='${card.fallbackUrl}';"
+                  class="w-12 h-16 rounded-xl object-cover shrink-0 border border-purple-100"
+                />
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">#${card.id}</span>
+                    <span class="text-[10px] font-bold text-purple-600 uppercase truncate">${card.group}</span>
+                  </div>
+                  <div class="font-bold text-slate-900 text-sm truncate">${card.member}</div>
+                  <div class="text-[11px] text-slate-400 truncate">${card.releaseType} • ${card.condition}</div>
+                </div>
+              </div>
+              <button
+                onclick="toggleCardInCart('${card.id}')"
+                class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold shrink-0 transition"
+                title="Удалить из корзины"
+              >
+                ✕
+              </button>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("drawerOriginalSum").textContent = `${totals.OriginalSum} ₽`;
+      document.getElementById("drawerDiscountSum").textContent = `−${totals.discountAmount} ₽`;
+      document.getElementById("drawerFinalSum").textContent = `${totals.finalPayable} ₽`;
+
+      document.getElementById("tgMessagePreview").textContent = generateTelegramMessage();
+      document.getElementById("checkoutTelegramBtn").disabled = totals.totalItemsCount === 0;
+
+      renderDiscountTiers();
+      renderCatalog();
+    }
+
+    /*************************************************************************
+     * 9. ИНТЕРАКТИВНЫЕ ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ
+     *************************************************************************/
+    function toggleCardInCart(cardId) {
+      const card = CATALOG_DATA.find(c => c.id === cardId);
+      if (!card || card.status !== "available") return;
+
+      const idx = cartIds.indexOf(cardId);
+      if (idx > -1) {
+        cartIds.splice(idx, 1);
+      } else {
+        cartIds.push(cardId);
+      }
+      updateCartUI();
+      if (activeModalCardId === cardId) {
+        syncModalButton(card);
+      }
+    }
+
+    function changeRandomCount(delta) {
+      randomCardCount = Math.max(0, randomCardCount + delta);
+      updateCartUI();
+    }
+
+    function demoSelectTierCount(targetCount) {
+      const availableCards = CATALOG_DATA.filter(c => c.status === "available");
+      cartIds = availableCards.slice(0, targetCount).map(c => c.id);
+      updateCartUI();
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById("cartDrawer");
+      const backdrop = document.getElementById("cartDrawerBackdrop");
+      if (open) {
+        backdrop.classList.remove("hidden");
+        drawer.classList.remove("translate-y-full", "md:translate-x-full");
+      } else {
+        backdrop.classList.add("hidden");
+        drawer.classList.add("translate-y-full", "md:translate-x-full");
+      }
+    }
+
+    function toggleMessagePreview() {
+      const el = document.getElementById("tgMessagePreviewContainer");
+      el.classList.toggle("hidden");
+    }
+
+    function copyTextToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+      } catch (err) {}
+      document.body.removeChild(textarea);
+    }
+
+    function copyOrderText() {
+      const msg = generateTelegramMessage();
+      copyTextToClipboard(msg);
+      const btn = document.getElementById("copyTextBtn");
+      btn.textContent = "✅ Скопировано!";
+      setTimeout(() => (btn.textContent = "📋 Скопировать вручную"), 2000);
+    }
+
+    function checkoutViaTelegram() {
+      const message = generateTelegramMessage();
+      const encodedText = encodeURIComponent(message);
+
+      // Копируем полный список заказа в буфер обмена (на случай, если Telegram-бот требует нажатия /start при первом диалоге)
+      copyTextToClipboard(message);
+
+      const notice = document.getElementById("checkoutCopyNotice");
+      if (notice) {
+        notice.classList.remove("hidden");
+      }
+
+      // Компактный параметр start с перечислением ID карт + универсальная ссылка на @PocaBot
+      const compactIds = cartIds.join("_") + (randomCardCount > 0 ? `_R${randomCardCount}` : "");
+      const tgDeepLink = `tg://resolve?domain=${TELEGRAM_BOT_USERNAME}&start=order_${compactIds}&text=${encodedText}`;
+      const webFallbackLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=order_${compactIds}&text=${encodedText}`;
+
+      window.location.href = tgDeepLink;
+
+      setTimeout(() => {
+        window.open(webFallbackLink, "_blank");
+      }, 600);
+    }
+
+    function openInfoModal(title, body) {
+      document.getElementById("infoModalTitle").textContent = title;
+      document.getElementById("infoModalBody").textContent = body;
+      const modal = document.getElementById("infoModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeInfoModal() {
+      const modal = document.getElementById("infoModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    /*************************************************************************
+     * 10. МОДАЛЬНОЕ ОКНО ТОВАРА
+     *************************************************************************/
+    function openCardModal(cardId) {
+      const card = CATALOG_DATA.find(c => c.id === cardId);
+      if (!card) return;
+      activeModalCardId = cardId;
+
+      const imgEl = document.getElementById("modalCardImage");
+      imgEl.src = card.photoUrl;
+      imgEl.onerror = function() {
+        this.onerror = null;
+        this.src = card.fallbackUrl;
+      };
+
+      document.getElementById("modalCardId").textContent = `#${card.id}`;
+      document.getElementById("modalReleaseBadge").textContent = card.releaseType;
+      document.getElementById("modalGroupName").textContent = card.group;
+      document.getElementById("modalMemberName").textContent = card.member;
+      document.getElementById("modalAlbumTitle").textContent = `Релиз: ${card.album}`;
+
+      const statusBadge = document.getElementById("modalStatusBadge");
+      if (card.status === "available") {
+        statusBadge.textContent = "🟢 В наличии";
+        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800";
+      } else if (card.status === "reserved") {
+        statusBadge.textContent = "⏳ Бронь";
+        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800";
+      } else {
+        statusBadge.textContent = "🔴 Продано";
+        statusBadge.className = "text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-200 text-slate-700";
+      }
+
+      document.getElementById("modalConditionIcon").textContent = "💎";
+      document.getElementById("modalConditionTitle").textContent = "Новая карта (Official Mint)";
+      document.getElementById("modalConditionDesc").textContent = card.conditionNote;
+
+      syncModalButton(card);
+
+      const modal = document.getElementById("cardModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function syncModalButton(card) {
+      const btn = document.getElementById("modalActionBtn");
+      const inCart = cartIds.includes(card.id);
+      if (card.status !== "available") {
+        btn.disabled = true;
+        btn.textContent = card.status === "reserved" ? "Карта на брони" : "Карта продана";
+        btn.className = "w-full py-3.5 px-5 rounded-2xl font-bold text-sm bg-slate-200 text-slate-400 cursor-not-allowed";
+      } else if (inCart) {
+        btn.disabled = false;
+        btn.textContent = "✓ Уже в корзине (Нажмите, чтобы убрать)";
+        btn.className = "w-full py-3.5 px-5 rounded-2xl font-bold text-sm bg-emerald-600 hover:bg-rose-600 text-white shadow-lg transition";
+        btn.onclick = () => toggleCardInCart(card.id);
+      } else {
+        btn.disabled = false;
+        btn.textContent = "+ Положить в корзину за 400 ₽ (от 250 ₽ в сете)";
+        btn.className = "w-full py-3.5 px-5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-purple-700 text-white shadow-lg transition";
+        btn.onclick = () => toggleCardInCart(card.id);
+      }
+    }
+
+    function closeCardModal() {
+      const modal = document.getElementById("cardModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      activeModalCardId = null;
+    }
+
+    /*************************************************************************
+     * 11. ФИЛЬТРЫ И ЗАГРУЗКА СВОИХ ФОТО С КОМПЬЮТЕРА
+     *************************************************************************/
+    function setGroupFilter(groupName) {
+      currentFilters.group = groupName;
+      renderGroupPills();
+      renderCatalog();
+    }
+
+    function resetAllFilters() {
+      currentFilters = { search: "", gender: "all", group: "all", releaseType: "all", status: "all" };
+      document.getElementById("searchInput").value = "";
+      document.getElementById("clearSearchBtn").classList.add("hidden");
+      document.getElementById("releaseFilter").value = "all";
+      document.getElementById("statusFilter").value = "all";
+      document.querySelectorAll(".gender-btn").forEach(btn => {
+        if (btn.dataset.gender === "all") {
+          btn.className = "gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm";
+        } else {
+          btn.className = "gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900";
+        }
+      });
+      renderGroupPills();
+      renderCatalog();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("openCartHeaderBtn").addEventListener("click", () => toggleCartDrawer(true));
+
+      document.getElementById("randomMinusBtn").addEventListener("click", () => changeRandomCount(-1));
+      document.getElementById("randomPlusBtn").addEventListener("click", () => changeRandomCount(1));
+
+      const searchInput = document.getElementById("searchInput");
+      const clearSearchBtn = document.getElementById("clearSearchBtn");
+      searchInput.addEventListener("input", e => {
+        currentFilters.search = e.target.value;
+        clearSearchBtn.classList.toggle("hidden", !e.target.value);
+        renderCatalog();
+      });
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        currentFilters.search = "";
+        clearSearchBtn.classList.add("hidden");
+        renderCatalog();
+      });
+
+      document.querySelectorAll(".gender-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentFilters.gender = btn.dataset.gender;
+          currentFilters.group = "all";
+          document.querySelectorAll(".gender-btn").forEach(b => {
+            b.className = "gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900";
+          });
+          btn.className = "gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm";
+          renderGroupPills();
+          renderCatalog();
+        });
+      });
+
+      document.getElementById("releaseFilter").addEventListener("change", e => {
+        currentFilters.releaseType = e.target.value;
+        renderCatalog();
+      });
+      document.getElementById("statusFilter").addEventListener("change", e => {
+        currentFilters.status = e.target.value;
+        renderCatalog();
+      });
+      document.getElementById("resetFiltersBtn").addEventListener("click", resetAllFilters);
+
+      document.getElementById("demoFillFullSetBtn").addEventListener("click", () => {
+        demoSelectTierCount(8);
+        toggleCartDrawer(true);
+      });
+      document.getElementById("demoClearCartBtn").addEventListener("click", () => {
+        cartIds = [];
+        randomCardCount = 0;
+        updateCartUI();
+      });
+
+      document.getElementById("customPhotoInput").addEventListener("change", e => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        files.forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = ev => {
+            for (let i = index; i < CATALOG_DATA.length; i += files.length) {
+              CATALOG_DATA[i].photoUrl = ev.target.result;
+            }
+            updateCartUI();
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      renderGroupPills();
+      updateCartUI();
+    });
+  </script>
+</body>
+</html>
