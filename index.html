@@ -202,13 +202,13 @@
         <div class="lg:col-span-5 space-y-5">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100/80 border border-pink-200 text-pink-700 text-xs font-bold">
             <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
-            100% Оригинальные релизы из Кореи • Упаковка в топлоадер
+            100% Оригинальные релизы из Кореи • Видео под лампой до оплаты
           </div>
           <h1 class="text-3xl sm:text-4xl lg:text-[40px] font-extrabold tracking-tight text-slate-900 leading-[1.15]">
             Дропы редких и альбомных <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">K-Pop фотокарт</span>
           </h1>
           <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Добро пожаловать в <strong>PocaDrop</strong>! Собирайте любимых мемберов и полные сеты. Чем больше карт в заказе, тем выгоднее стоимость каждой из них — скидка считается автоматически.
+            Добро пожаловать в <strong>PocaDrop</strong>! Собирайте любимых мемберов и полные сеты. Перед оплатой мы обязательно пришлем видео выбранных карт под лампой, а скидка на сет посчитается автоматически.
           </p>
 
           <!-- Special Widget: Random Photocard (350 ₽) -->
@@ -312,7 +312,7 @@
       <!-- Info Bar -->
       <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-500">
         <div>
-          Найдено позиций в каталоге: <strong id="catalogCountLabel" class="text-slate-800">8</strong>
+          Найдено позиций в каталоге: <strong id="catalogCountLabel" class="text-slate-800">0</strong>
           <span class="hidden sm:inline ml-2 text-slate-400">• Нажмите на фото карты, чтобы посмотреть подробную информацию о релизе</span>
         </div>
       </div>
@@ -320,8 +320,15 @@
 
     <!-- КАТАЛОГ ФОТОКАРТ (Сетка: 2 колонки на мобильных, 4 на десктопе) -->
     <section>
+      <!-- Loading State (показывается, пока подтягивается Google Таблица) -->
+      <div id="loadingCatalogState" class="glass rounded-3xl p-12 text-center space-y-3">
+        <div class="inline-flex w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 items-center justify-center text-2xl animate-pulse">✨</div>
+        <h3 class="text-base sm:text-lg font-bold text-slate-800">Загружаем актуальный каталог карт...</h3>
+        <p class="text-xs sm:text-sm text-slate-500">Синхронизируем наличие и статусы с базой PocaDrop</p>
+      </div>
+
       <div id="catalogGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        <!-- JS injects cards here -->
+        <!-- JS injects cards here dynamically from Google Sheet -->
       </div>
 
       <!-- Empty State -->
@@ -342,7 +349,7 @@
         <div>
           <h3 class="font-bold text-slate-800 text-sm sm:text-base">100% Новые из официальных магазинов</h3>
           <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-            Все фотокарты — 100% оригинальные и новые. Закупаются напрямую в Южной Корее в рамках официальных предзаказов и релизов агентств. Все заказы учитываются в официальных чартах Hanteo и Circle.
+            Все фотокарты — 100% оригинальные и новые. Закупаются напрямую в Южной Кореи в рамках официальных предзаказов и релизов агентств. Все заказы учитываются в официальных чартах Hanteo и Circle.
           </p>
         </div>
       </div>
@@ -356,11 +363,11 @@
         </div>
       </div>
       <div class="glass rounded-3xl p-5 flex items-start gap-4">
-        <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl shrink-0">✈️</div>
+        <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">🔦</div>
         <div>
-          <h3 class="font-bold text-slate-800 text-sm sm:text-base">Заказ в 1 клик через @PocaDrop_bot</h3>
+          <h3 class="font-bold text-slate-800 text-sm sm:text-base">Видео под лампой ДО оплаты</h3>
           <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-            Никаких длинных анкет и паролей. Собирайте корзину (она сохраняется автоматически), получайте скидку до 1200 ₽ и отправляйте заказ в <strong>@PocaDrop_bot</strong>.
+            Покупайте со 100% уверенностью! После отправки заказа в <strong>@PocaDrop_bot</strong> мы сначала пришлем вам детальное видео выбранных карт под светом лампы, и только если вас всё устраивает — вы переходите к оплате.
           </p>
         </div>
       </div>
@@ -375,14 +382,14 @@
         <div class="font-extrabold text-slate-900 text-base flex items-center gap-2">
           <span class="text-purple-600">✦</span> PocaDrop <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">pocadrop.ru</span>
         </div>
-        <p>Магазин оригинальных коллекционных K-Pop фотокарт с прогрессивными скидками.</p>
+        <p>Магазин оригинальных коллекционных K-Pop фотокарт с прогрессивными скидками и видео-проверкой перед оплатой.</p>
         <p class="text-slate-400 text-xs">© 2026 PocaDrop (pocadrop.ru) • Оформление заказов: <a href="https://t.me/PocaDrop_bot" target="_blank" class="text-purple-600 font-semibold hover:underline">@PocaDrop_bot</a></p>
       </div>
       <div class="flex flex-wrap gap-3">
         <button type="button" onclick="openInfoModal('⭐ Отзывы покупателей', 'Здесь будет ссылка на ваш Telegram-канал PocaDrop с отзывами и фото распаковок покупателей!')" class="px-4 py-2 rounded-xl bg-white border border-purple-200 font-semibold text-purple-800 hover:bg-purple-50 transition">
           ⭐ Отзывы покупателей
         </button>
-        <button type="button" onclick="openInfoModal('📋 Правила и доставка PocaDrop', '1. Бронь держится 24 часа после отправки заказа в @PocaDrop_bot.\n2. Отправка Почтой РФ / СДЭК / Яндекс Доставкой в течение 1-2 дней.\n3. Жесткий топлоадер и защитный картон бесплатно к каждому заказу!')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition">
+        <button type="button" onclick="openInfoModal('📋 Правила, проверка и доставка PocaDrop', '1. Видео под лампой перед оплатой: после отправки заказа в @PocaDrop_bot мы пришлем вам видео ваших карт под светом лампы. Вы оплачиваете заказ только после того, как лично убедитесь в идеальном состоянии карт!\n2. Бронь держится 24 часа после отправки заказа в бот.\n3. Отправка Почтой РФ / СДЭК / Яндекс Доставкой в течение 1-2 дней.\n4. Жесткий топлоадер и защитный картон бесплатно к каждому заказу!')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition">
           📋 Правила и доставка
         </button>
       </div>
@@ -458,7 +465,7 @@
             </div>
 
             <!-- Authenticity & Condition Box -->
-            <div id="modalConditionBox" class="p-3.5 rounded-2xl border bg-slate-50 space-y-1">
+            <div id="modalConditionBox" class="p-3.5 rounded-2xl border bg-slate-50 space-y-1.5">
               <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                 <span id="modalConditionIcon">💎</span>
                 <span id="modalConditionTitle">Новая карта (Official Mint)</span>
@@ -466,6 +473,10 @@
               <p id="modalConditionDesc" class="text-xs text-slate-600 leading-relaxed">
                 Абсолютно новая оригинальная карта из официального релиза. Хранится в индивидуальном защитном протекторе.
               </p>
+              <div class="pt-1 text-[11px] font-semibold text-purple-700 flex items-center gap-1">
+                <span>🔦</span>
+                <span>Гарантия: перед оплатой пришлем видео этой карты под лампой в @PocaDrop_bot!</span>
+              </div>
             </div>
 
             <!-- Price Info -->
@@ -486,7 +497,7 @@
               Положить в корзину
             </button>
             <p class="text-[11px] text-center text-slate-400">
-              🛡️ Топлоадер + переплетный картон уже включены в стоимость
+              🔦 Видео под лампой до оплаты • 🛡️ Топлоадер включен в цену
             </p>
           </div>
         </div>
@@ -566,6 +577,12 @@
         </div>
       </div>
 
+      <!-- Lamp Video Guarantee Badge inside Cart -->
+      <div class="p-2.5 rounded-xl bg-purple-50/90 border border-purple-200/70 text-[11px] text-purple-900 flex items-center gap-2">
+        <span class="text-sm shrink-0">🔦</span>
+        <span><strong>Оплата после проверки:</strong> сначала пришлем вам в бот видео карт под лампой, и только если всё ок — вы оплачиваете заказ!</span>
+      </div>
+
       <!-- Order Text Preview & Copy Helper -->
       <div class="space-y-1.5">
         <div class="flex items-center justify-between text-[11px] text-slate-500">
@@ -604,7 +621,7 @@
     </div>
   </aside>
 
-  <!-- JAVASCRIPT ENGINE: КАТАЛОГ, МАТЕМАТИКА СКИДОК, LOCALSTORAGE И СИНХРОНИЗАЦИЯ С ТАБЛИЦЕЙ -->
+  <!-- JAVASCRIPT ENGINE: ДИНАМИЧЕСКИЙ КАТАЛОГ ИЗ GOOGLE ТАБЛИЦЫ, СКИДКИ И LOCALSTORAGE -->
   <script>
     /*************************************************************************
      * 0. КОНФИГУРАЦИЯ МАГАЗИНА POCADROP.RU И РЕЖИМА «СКОРО ОТКРЫТИЕ»
@@ -634,7 +651,6 @@
 
       if (vipParam === SECRET_ACCESS_CODE) {
         localStorage.setItem(STORAGE_ADMIN_UNLOCK_KEY, "true");
-        // Очищаем секретный код из адресной строки, чтобы адрес выглядел красиво
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
@@ -682,20 +698,8 @@
     const RANDOM_CARD_PRICE = 350;
 
     /*************************************************************************
-     * 2. ПРИВЯЗКА ФОТОГРАФИЙ + FALLBACK
+     * 2. ГЕНЕРАТОР РЕЗЕРВНОЙ ОБЛОЖКИ (на случай если у карты в таблице еще нет фото)
      *************************************************************************/
-    // Сюда уже прописаны ссылки на ваши 8 загруженных фото (1.jpg – 8.jpg) из папки «Фотографии»
-    const DRIVE_PHOTOS = [
-      "https://drive.google.com/thumbnail?id=1-bkDYeGwYc9xLk9rwrBzAPLuzm6hntq9&sz=w800",
-      "https://drive.google.com/thumbnail?id=1Kl_s6bI7NrRdXj4w54wNn-1lNNiYaZoJ&sz=w800",
-      "https://drive.google.com/thumbnail?id=1liiskmvUAc4EVb8aUF2agpQUBrcRpFz9&sz=w800",
-      "https://drive.google.com/thumbnail?id=1XKaENC47I4FlwyJHxZ_XdiJT0ylbfbNt&sz=w800",
-      "https://drive.google.com/thumbnail?id=1whjPYqRkxJbBnyrCv-Z7nmipyRAUdSHG&sz=w800",
-      "https://drive.google.com/thumbnail?id=1d6a0COqmKRiuUDQUZR9nVl7urIQRB3yK&sz=w800",
-      "https://drive.google.com/thumbnail?id=1M-UC_7q5dzBtE2UazRQ-xDFMvbzH5WaE&sz=w800",
-      "https://drive.google.com/thumbnail?id=1VOvbY33p0Eb2ywYvY5SKPui_9vA2JWnw&sz=w800"
-    ];
-
     function createFallbackCardArt(member, group, textureLabel, bgHex1, bgHex2) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 850" width="550" height="850">
         <defs>
@@ -723,114 +727,10 @@
     }
 
     /*************************************************************************
-     * 3. БАЗА КАРТ (Стартовый каталог из вашей таблицы + автообновление)
+     * 3. ДИНАМИЧЕСКАЯ БАЗА КАРТ (Заполняется напрямую из Google Таблицы)
      *************************************************************************/
-    let CATALOG_DATA = [
-      {
-        id: "KP-101",
-        member: "Felix (Феликс)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[0],
-        fallbackUrl: createFallbackCardArt("Felix", "Stray Kids", "ATE • This & That Ver.", "#6366f1", "#a855f7")
-      },
-      {
-        id: "KP-102",
-        member: "Lee Know (Ли Ноу)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[1],
-        fallbackUrl: createFallbackCardArt("Lee Know", "Stray Kids", "ATE • This & That Ver.", "#3b82f6", "#1d4ed8")
-      },
-      {
-        id: "KP-103",
-        member: "Changbin (Чанбин)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[2],
-        fallbackUrl: createFallbackCardArt("Changbin", "Stray Kids", "ATE • This & That Ver.", "#8b5cf6", "#6366f1")
-      },
-      {
-        id: "KP-104",
-        member: "Hyunjin (Хёнджин)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[3],
-        fallbackUrl: createFallbackCardArt("Hyunjin", "Stray Kids", "ATE • This & That Ver.", "#475569", "#1e293b")
-      },
-      {
-        id: "KP-105",
-        member: "HAN (Хан)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[4],
-        fallbackUrl: createFallbackCardArt("HAN", "Stray Kids", "ATE • This & That Ver.", "#6366f1", "#ec4899")
-      },
-      {
-        id: "KP-106",
-        member: "Felix (Феликс)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[5],
-        fallbackUrl: createFallbackCardArt("Felix", "Stray Kids", "ATE • This & That Ver.", "#8b5cf6", "#ec4899")
-      },
-      {
-        id: "KP-107",
-        member: "Seungmin (Сынмин)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[6],
-        fallbackUrl: createFallbackCardArt("Seungmin", "Stray Kids", "ATE • This & That Ver.", "#0ea5e9", "#6366f1")
-      },
-      {
-        id: "KP-108",
-        member: "I.N (Ай Эн)",
-        group: "Stray Kids",
-        gender: "boy",
-        releaseType: "Album",
-        album: "ATE • Album Photocard, This & That Ver.",
-        condition: "Новая (Official)",
-        conditionNote: "Новая карта!",
-        status: "available",
-        photoUrl: DRIVE_PHOTOS[7],
-        fallbackUrl: createFallbackCardArt("I.N", "Stray Kids", "ATE • This & That Ver.", "#64748b", "#4f46e5")
-      }
-    ];
+    let CATALOG_DATA = [];
+    let isCatalogLoading = true;
 
     /*************************************************************************
      * 4. СОСТОЯНИЕ ПРИЛОЖЕНИЯ (STATE) С ПАМЯТЬЮ БРАУЗЕРА (LOCALSTORAGE)
@@ -842,11 +742,14 @@
       try {
         const savedIds = JSON.parse(localStorage.getItem(STORAGE_CART_KEY) || "[]");
         if (Array.isArray(savedIds)) {
-          // Оставляем только реально существующие и доступные к покупке карты
-          cartIds = savedIds.filter(id => {
-            const c = CATALOG_DATA.find(item => item.id === id);
-            return c && c.status === "available";
-          });
+          if (CATALOG_DATA.length > 0) {
+            cartIds = savedIds.filter(id => {
+              const c = CATALOG_DATA.find(item => item.id === id);
+              return c && c.status === "available";
+            });
+          } else {
+            cartIds = savedIds;
+          }
         }
         const savedRandom = parseInt(localStorage.getItem(STORAGE_RANDOM_KEY) || "0", 10);
         randomCardCount = isNaN(savedRandom) || savedRandom < 0 ? 0 : savedRandom;
@@ -1018,7 +921,16 @@
     function renderCatalog() {
       const grid = document.getElementById("catalogGrid");
       const emptyState = document.getElementById("emptyCatalogState");
+      const loadingState = document.getElementById("loadingCatalogState");
       const countLabel = document.getElementById("catalogCountLabel");
+
+      if (isCatalogLoading) {
+        grid.innerHTML = "";
+        emptyState.classList.add("hidden");
+        if (loadingState) loadingState.classList.remove("hidden");
+        return;
+      }
+      if (loadingState) loadingState.classList.add("hidden");
 
       const filtered = getFilteredCards();
       countLabel.textContent = filtered.length;
@@ -1105,7 +1017,7 @@
                 <!-- Bottom Card Info Hint -->
                 <div class="absolute bottom-2 inset-x-2 flex items-center justify-between px-2.5 py-1 rounded-xl bg-black/55 backdrop-blur-xs text-white text-[10px] font-medium">
                   <span>#${card.id}</span>
-                  <span class="flex items-center gap-1">✦ Official Merch</span>
+                  <span class="flex items-center gap-1">🔦 Видео до оплаты</span>
                 </div>
               </div>
 
@@ -1162,7 +1074,7 @@
         lines.push(`Скидка по прогрессивной шкале: -${totals.discountAmount} ₽`);
       }
       lines.push(`Итоговая сумма со скидкой: ${totals.finalPayable} ₽.`);
-      lines.push("Жду реквизиты для оплаты!");
+      lines.push("Жду видео с проверкой карт под лампой и реквизиты для оплаты!");
 
       return lines.join("\n");
     }
@@ -1462,10 +1374,8 @@
     }
 
     /*************************************************************************
-     * 12. АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ С GOOGLE ТАБЛИЦЕЙ POCADROP
+     * 12. ДИНАМИЧЕСКАЯ ЗАГРУЗКА КАТАЛОГА ИЗ GOOGLE ТАБЛИЦЫ POCADROP
      *************************************************************************/
-    // Если вы опубликовали таблицу через «Файл -> Поделиться -> Опубликовать в интернете (.csv)»,
-    // вставьте полученную CSV-ссылку сюда, либо просто откройте доступ к таблице «Все, у кого есть ссылка — Читатель»:
     const CUSTOM_PUBLISHED_CSV_URL = "";
     const DEFAULT_SHEET_KEY = [
       "1KQYd3ntcBAp9F0kw",
@@ -1497,8 +1407,6 @@
         category = "Album";
       }
 
-      // Если в колонке «Тип релиза» написано длинное уточнение (напр. "Album Photocard, This & That Ver."),
-      // красиво склеиваем его с названием альбома, чтобы ничего не потерялось!
       const isShortStandard = ["album", "pob", "lucky draw", "fanmeet"].includes(low);
       let fullAlbumTitle = (rawAlbum || "").trim();
       if (text && !isShortStandard) {
@@ -1547,7 +1455,7 @@
           const rows = parseCSVRows(csvText);
           if (rows.length < 2) continue;
 
-          const loadedCards = rows.slice(1).map((cols, idx) => {
+          const loadedCards = rows.slice(1).map((cols) => {
             const [id, member, group, genderRaw, releaseRaw, albumRaw, condition, conditionNote, statusRaw, photoRaw] = cols;
             if (!id || !member) return null;
 
@@ -1569,8 +1477,6 @@
               gender === "girl" ? "#a855f7" : "#3b82f6"
             );
 
-            const defaultPhoto = DRIVE_PHOTOS[idx] || fallbackUrl;
-
             return {
               id: id.trim(),
               member: member.trim(),
@@ -1581,22 +1487,26 @@
               condition: (condition || "Новая (Official)").trim(),
               conditionNote: (conditionNote || "Абсолютно новая оригинальная карта в защитном протекторе.").trim(),
               status,
-              photoUrl: convertDrivePhotoUrl(photoRaw, defaultPhoto),
+              photoUrl: convertDrivePhotoUrl(photoRaw, fallbackUrl),
               fallbackUrl
             };
           }).filter(Boolean);
 
-          if (loadedCards.length > 0) {
-            CATALOG_DATA = loadedCards;
-            loadCartFromStorage();
-            renderGroupPills();
-            updateCartUI();
-            return;
-          }
+          CATALOG_DATA = loadedCards;
+          isCatalogLoading = false;
+          loadCartFromStorage();
+          saveCartToStorage();
+          renderGroupPills();
+          updateCartUI();
+          return;
         } catch (err) {
-          // Используем встроенный каталог, если таблица недоступна
+          // Пробуем следующий эндпоинт
         }
       }
+
+      isCatalogLoading = false;
+      renderGroupPills();
+      updateCartUI();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
