@@ -834,7 +834,9 @@
             if (rawRelease && !["album","pob","lucky draw","fanmeet"].includes(rLow)) alb = `${alb} • ${rawRelease}`;
             
             let ph = (phRaw||"").trim();
-            if(ph && ph.match(/[-\w]{25,}/) && !ph.startsWith("http")) ph = `https://drive.google.com/thumbnail?id=${ph.match(/[-\w]{25,}/)[0]}&sz=w800`;
+            if(ph && ph.match(/[-\w]{25,}/) && (ph.includes("drive.google.com") || ph.includes("docs.google.com") || ph.length === ph.match(/[-\w]{25,}/)[0].length)) {
+              ph = `https://drive.google.com/thumbnail?id=${ph.match(/[-\w]{25,}/)[0]}&sz=w800`;
+            }
             
             return {
               id: id.trim(), member: mb.trim(), group: (grp||"K-Pop").trim(), gender: gen,
