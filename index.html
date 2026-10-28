@@ -15,12 +15,12 @@
       --bg-pastel: linear-gradient(135deg, #ffffff 0%, #f4f8ff 50%, #eef6ff 100%);
       --text-graphite: #0f172a;
     }
+    /* Важно: не задаем overflow-x: hidden на html/body, чтобы position: sticky работал во всех браузерах */
     html, body {
       font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
       background: var(--bg-pastel);
       color: var(--text-graphite);
       min-height: 100vh;
-      overflow-x: hidden;
       forced-color-adjust: none;
     }
     /* Glassmorphism */
@@ -31,7 +31,7 @@
       border: 1px solid rgba(226, 232, 240, 0.9);
     }
     .glass-strong {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(226, 232, 240, 0.98);
@@ -82,9 +82,6 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
-    /* Hide scrollbar for horizontal pill containers */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     /* Card Aspect Ratio (Standard K-pop Photocard 55x85mm) */
     .photocard-ratio {
       aspect-ratio: 55 / 85;
@@ -96,7 +93,7 @@
   <!-- =====================================================================
        ЗАЩИТНЫЙ ЭКРАН «СКОРО ОТКРЫТИЕ!» (COMING SOON GATE)
        ===================================================================== -->
-  <div id="comingSoonGate" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gradient-to-br from-[#ffffff] via-[#f4f8ff] to-[#eef6ff]">
+  <div id="comingSoonGate" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gradient-to-br from-[#ffffff] via-[#f4f8ff] to-[#eef6ff] overflow-hidden">
     <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-200/35 rounded-full blur-3xl pointer-events-none"></div>
     <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-sky-200/35 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -168,12 +165,14 @@
     <button onclick="lockSiteAgain()" class="underline text-sky-300 hover:text-white font-bold shrink-0">Выйти в режим заглушки</button>
   </div>
 
-  <!-- Decorative Ambient Blobs -->
-  <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
-  <div class="fixed top-[35%] right-[-10%] w-96 h-96 bg-sky-200/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
-  <div class="fixed bottom-[-10%] left-[25%] w-96 h-96 bg-blue-100/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <!-- Decorative Ambient Blobs (изолированы в fixed inset-0 overflow-hidden, чтобы не ломать sticky) -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-200/25 rounded-full blur-3xl"></div>
+    <div class="absolute top-[35%] right-[-10%] w-96 h-96 bg-sky-200/25 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-[-10%] left-[25%] w-96 h-96 bg-blue-100/30 rounded-full blur-3xl"></div>
+  </div>
 
-  <!-- HEADER (Закрепленная шапка — чистая и минималистичная) -->
+  <!-- HEADER (Закрепленная шапка) -->
   <header class="sticky top-0 z-40 glass shadow-sm transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
       <!-- Logo -->
@@ -212,12 +211,12 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6">
 
-    <!-- HERO SECTION + ПРОГРЕССИВНАЯ ШКАЛА СКИДОК -->
+    <!-- HERO SECTION + СПЕЦПРЕДЛОЖЕНИЕ ДЛЯ СЕТОВ -->
     <section class="glass rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-900/5 relative overflow-hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
-        <!-- Left Column: Title & Random Photocard Promo -->
-        <div class="lg:col-span-5 space-y-5">
+        <!-- Left Column: Title & Description -->
+        <div class="lg:col-span-5 space-y-4">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold">
             <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
             100% Оригинальные релизы из Кореи • Видео под лампой до оплаты
@@ -226,51 +225,42 @@
             Дропы редких и альбомных <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-sky-500">K-Pop фотокарт</span>
           </h1>
           <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Добро пожаловать в <strong><span class="brand-poca">Poca</span><span class="brand-drop">Drop</span></strong>! Собирайте любимых мемберов и полные сеты. Перед оплатой мы обязательно пришлем видео выбранных карт под лампой, а скидка на сет посчитается автоматически.
+            Добро пожаловать в <strong><span class="brand-poca">Poca</span><span class="brand-drop">Drop</span></strong>! Выбирайте карты любимых мемберов поштучно или собирайте акционные сеты из 8 карт с прогрессивной скидкой. Перед оплатой мы обязательно пришлем видео выбранных карт под лампой.
           </p>
-
-          <!-- Special Widget: Random Photocard (350 ₽) -->
-          <div class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/70 to-slate-50/90 border border-blue-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-slate-800 text-sm sm:text-base">Random Photocard (Карта наугад)</span>
-                <span class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">350 ₽ / шт.</span>
-              </div>
-              <p class="text-xs text-slate-600">
-                Секретная оригинальная карта из наличия! Считается по фиксированной ставке 350 ₽ параллельно основному заказу.
-              </p>
-            </div>
-            <div class="flex items-center gap-2 self-end sm:self-center shrink-0 bg-white/95 px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-              <button id="randomMinusBtn" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 font-bold flex items-center justify-center transition">−</button>
-              <span id="randomCountDisplay" class="w-6 text-center font-extrabold text-sm text-slate-900">0</span>
-              <button id="randomPlusBtn" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-blue-700 text-white font-bold flex items-center justify-center transition">+</button>
-            </div>
-          </div>
         </div>
 
-        <!-- Right Column: Interactive Progressive Discount Grid -->
+        <!-- Right Column: Special Set Offer & Progressive Discount Grid -->
         <div class="lg:col-span-7 space-y-3">
-          <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <span>Таблица прогрессивных скидок</span>
-              <span class="text-xs font-normal text-blue-600">(добавляйте карты в корзину для роста скидки)</span>
-            </h2>
-            <span id="activeTierBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100">
-              Выбрано карт: 0 шт.
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Спецпредложение: Собери сет со скидкой
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                При покупке карт из акционных сетов (по 8 карт) действует прогрессивная скидка — полный сет за <strong class="text-blue-700">1 800 ₽</strong> вместо 2 400 ₽:
+              </p>
+            </div>
+            <span id="activeTierBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 shrink-0">
+              Карт из сетов: 0 шт.
             </span>
           </div>
 
+          <!-- Кнопки быстрого выбора акционных сетов (динамически из базы) -->
+          <div id="promoSetsSelector" class="flex flex-wrap items-center gap-2 pt-0.5">
+            <!-- JS injects buttons for each available promo set -->
+          </div>
+
           <div id="discountTiersGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <!-- JS injects the 8 discount tiers here -->
+            <!-- JS injects the 8 set discount tiers here -->
           </div>
 
           <!-- Dynamic Upsell Bar inside Hero -->
           <div id="heroUpsellBar" class="p-3.5 rounded-2xl bg-white/90 border border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm">
             <div class="flex items-center gap-2">
-              <span id="heroUpsellText" class="font-medium text-slate-700">Добавьте карты в корзину, чтобы запустить расчет скидки!</span>
+              <span id="heroUpsellText" class="font-medium text-slate-700">Нажмите на интересующий сет выше, чтобы посмотреть его карты и собрать комбо со скидкой!</span>
             </div>
             <span id="heroBonusPill" class="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-xl shrink-0 hidden">
-              Ваша скидка: 0 ₽
+              Скидка на сет: 0 ₽
             </span>
           </div>
         </div>
@@ -372,7 +362,7 @@
     <section id="stickyFilterSection" class="sticky top-16 sm:top-20 z-30 pt-1 pb-1 transition-all">
       <div class="glass-strong rounded-3xl p-3 sm:p-4 shadow-md shadow-slate-900/5 border border-slate-200/90 space-y-2.5">
 
-        <!-- Верхний ряд: Строка поиска (вместо вкладок пола) + Выбор альбома + Статус + Сброс -->
+        <!-- Верхний ряд: Строка поиска + Выбор альбома (Колонка F) + Статус + Сброс -->
         <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
           <!-- Полноценная строка поиска -->
           <div class="relative flex-1">
@@ -388,30 +378,30 @@
             <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs px-1">✕</button>
           </div>
 
-          <!-- Выпадающие фильтры: Выбор альбома (Колонка F) и Статус наличия -->
-          <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar shrink-0">
-            <select id="albumFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 shrink-0 max-w-[170px] sm:max-w-[220px] truncate">
+          <!-- Выпадающие фильтры: Выбор альбома и Статус наличия -->
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+            <select id="albumFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 max-w-[175px] sm:max-w-[220px] truncate">
               <option value="all">Все альбомы</option>
               <!-- JS динамически подставляет альбомы из колонки F -->
             </select>
 
-            <select id="statusFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 shrink-0">
+            <select id="statusFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400">
               <option value="all">Все статусы наличия</option>
               <option value="available">Только в наличии</option>
               <option value="reserved">Бронь</option>
               <option value="sold">Продано</option>
             </select>
 
-            <button id="resetFiltersBtn" class="px-2.5 py-2 rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-50 transition shrink-0">
+            <button id="resetFiltersBtn" class="px-2.5 py-2 rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-50 transition">
               Сбросить
             </button>
 
-            <!-- Кнопка компактного сворачивания пилюль на мобильных при скролле -->
+            <!-- Кнопка компактного сворачивания списков групп/мемберов при скролле -->
             <button
               type="button"
               id="toggleFilterPillsBtn"
               onclick="toggleStickyFilterPills()"
-              class="md:hidden px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 shrink-0 transition"
+              class="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 transition"
               title="Свернуть или развернуть списки групп и мемберов"
             >
               <span id="toggleFilterPillsText">Свернуть</span>
@@ -422,16 +412,16 @@
           </div>
         </div>
 
-        <!-- Сворачиваемый блок пилюль: Группы + Каскадный ряд Мемберов выбранной группы -->
+        <!-- Сворачиваемый блок пилюль: Группы + Каскадный ряд Мемберов выбранной группы (в несколько строк flex-wrap) -->
         <div id="collapsiblePillsArea" class="space-y-2 pt-0.5">
           <!-- Ряд 1: Кнопки групп -->
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar" id="groupPillsContainer">
+          <div class="flex flex-wrap items-center gap-1.5" id="groupPillsContainer">
             <!-- JS injects group buttons -->
           </div>
 
           <!-- Ряд 2: Каскадный фильтр мемберов (появляется при выборе конкретной группы) -->
-          <div id="memberPillsWrapper" class="hidden pt-1.5 border-t border-slate-200/70">
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar" id="memberPillsContainer">
+          <div id="memberPillsWrapper" class="hidden pt-2 border-t border-slate-200/70">
+            <div class="flex flex-wrap items-center gap-1.5" id="memberPillsContainer">
               <!-- JS injects member buttons for the selected group -->
             </div>
           </div>
@@ -540,7 +530,7 @@
           </span>
           <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">pocadrop.ru</span>
         </div>
-        <p>Магазин оригинальных коллекционных K-Pop фотокарт с прогрессивными скидками и видео-проверкой перед оплатой.</p>
+        <p>Магазин оригинальных коллекционных K-Pop фотокарт с акционными сетами и видео-проверкой перед оплатой.</p>
         <p class="text-slate-400 text-xs">© 2026 PocaDrop (pocadrop.ru) • Оформление заказов: <a href="https://t.me/PocaDrop_bot" target="_blank" class="text-blue-600 font-semibold hover:underline">@PocaDrop_bot</a></p>
       </div>
       <div class="flex flex-wrap gap-3">
@@ -583,7 +573,7 @@
       </div>
       <div class="text-right">
         <div id="mobileCartTotalPrice" class="text-sm font-extrabold text-white">0 ₽</div>
-        <div id="mobileCartDiscountTag" class="text-[10px] text-sky-300 font-semibold">Скидка: 0 ₽</div>
+        <div id="mobileCartDiscountTag" class="text-[10px] text-sky-300 font-semibold">Открыть корзину →</div>
       </div>
     </button>
   </div>
@@ -624,29 +614,29 @@
               <p id="modalAlbumTitle" class="text-xs text-slate-500 mt-1">Релиз: 5-STAR</p>
             </div>
 
-            <!-- Authenticity & Condition Box -->
+            <!-- Authenticity & Condition Box (Колонки G и H — свободный текст) -->
             <div id="modalConditionBox" class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 space-y-1.5">
               <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                 <span id="modalConditionIcon" class="hidden"></span>
                 <span id="modalConditionTitle">Новая карта (Official Mint)</span>
               </div>
-              <p id="modalConditionDesc" class="text-xs text-slate-600 leading-relaxed">
-                Абсолютно новая оригинальная карта из официального релиза. Хранится в индивидуальном защитном протекторе.
+              <p id="modalConditionDesc" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                Абсолютно новая оригинальная карта из официального релиза.
               </p>
               <div class="pt-1 text-[11px] font-semibold text-blue-700 flex items-center gap-1">
                 <span>Гарантия: перед оплатой пришлем видео этой карты под лампой в @PocaDrop_bot!</span>
               </div>
             </div>
 
-            <!-- Price Info -->
-            <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between">
+            <!-- Price Info (Динамическая цена из колонки D) -->
+            <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between gap-2">
               <div>
-                <div class="text-xs text-slate-500">Базовая цена (1 шт.)</div>
-                <div class="text-xl font-extrabold text-slate-900">400 ₽</div>
+                <div class="text-xs text-slate-500">Цена за 1 шт.</div>
+                <div id="modalCardPrice" class="text-xl font-extrabold text-slate-900">300 ₽</div>
               </div>
-              <div class="text-right">
-                <div class="text-xs text-blue-700 font-semibold">В сете из 8 карт</div>
-                <div class="text-base font-extrabold text-blue-700">всего 250 ₽ / шт.</div>
+              <div id="modalSetPromoBox" class="text-right hidden">
+                <div class="text-xs text-blue-700 font-semibold">Акционный сет (8 карт)</div>
+                <div class="text-sm sm:text-base font-extrabold text-blue-700">1 800 ₽ за сет (225 ₽/шт)</div>
               </div>
             </div>
           </div>
@@ -692,11 +682,11 @@
       </div>
     </div>
 
-    <!-- Dynamic Upsell Banner inside Cart -->
+    <!-- Dynamic Set Upsell Banner inside Cart -->
     <div id="drawerUpsellBox" class="mx-5 mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 to-blue-700 text-white shadow-md space-y-2">
-      <div class="flex items-center justify-between text-xs font-bold">
-        <span id="drawerUpsellTitle">Добавьте еще 1 карту для получения следующего уровня скидки!</span>
-        <span id="drawerTierProgressLabel">0 / 8</span>
+      <div class="flex items-center justify-between gap-2 text-xs font-bold">
+        <span id="drawerUpsellTitle">Собирайте карты из акционных сетов для получения скидки!</span>
+        <span id="drawerTierProgressLabel" class="shrink-0">0 / 8</span>
       </div>
       <div class="w-full h-2 rounded-full bg-white/25 overflow-hidden">
         <div id="drawerProgressBar" class="h-full bg-white rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -711,19 +701,6 @@
     <!-- Drawer Footer: Calculation, Telegram Message Preview & CTA -->
     <div class="p-5 border-t border-slate-200/80 bg-white/80 space-y-4">
 
-      <!-- Random Card Quick Add inside Cart -->
-      <div class="p-3 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between text-xs">
-        <div>
-          <span class="font-bold text-slate-800">Random photocard (карта наугад)</span>
-          <div class="text-[11px] text-slate-500">Фиксированная цена 350 ₽ • вне шкалы сета</div>
-        </div>
-        <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-slate-200">
-          <button onclick="changeRandomCount(-1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">−</button>
-          <span id="drawerRandomCount" class="font-extrabold text-slate-800 w-4 text-center">0</span>
-          <button onclick="changeRandomCount(1)" class="w-6 h-6 rounded bg-slate-900 hover:bg-blue-700 text-white font-bold">+</button>
-        </div>
-      </div>
-
       <!-- Summary Lines -->
       <div class="space-y-1.5 text-sm">
         <div class="flex justify-between text-slate-500 text-xs">
@@ -731,11 +708,11 @@
           <span id="drawerOriginalSum" class="line-through">0 ₽</span>
         </div>
         <div class="flex justify-between text-blue-700 font-semibold text-xs">
-          <span>Ваш бонус составил:</span>
+          <span>Скидка по акции сета:</span>
           <span id="drawerDiscountSum">0 ₽</span>
         </div>
         <div class="flex justify-between items-baseline pt-1 border-t border-slate-200">
-          <span class="font-bold text-slate-800">Итого к оплате с учетом скидки:</span>
+          <span class="font-bold text-slate-800">Итого к оплате:</span>
           <span id="drawerFinalSum" class="text-2xl font-extrabold text-slate-900">0 ₽</span>
         </div>
       </div>
@@ -783,7 +760,7 @@
     </div>
   </aside>
 
-  <!-- JAVASCRIPT ENGINE: ДИНАМИЧЕСКИЙ КАТАЛОГ ИЗ GOOGLE ТАБЛИЦЫ, СКИДКИ И LOCALSTORAGE -->
+  <!-- JAVASCRIPT ENGINE: ДИНАМИЧЕСКИЙ КАТАЛОГ ИЗ GOOGLE ТАБЛИЦЫ, СЕТЫ И LOCALSTORAGE -->
   <script>
     /*************************************************************************
      * 0. КОНФИГУРАЦИЯ МАГАЗИНА POCADROP.RU, ЛОГОТИПА И РЕЖИМА «СКОРО ОТКРЫТИЕ»
@@ -796,7 +773,6 @@
     const SECRET_ACCESS_CODE = "poca2026";
 
     const STORAGE_CART_KEY = "pocadrop_saved_cart_v1";
-    const STORAGE_RANDOM_KEY = "pocadrop_saved_random_v1";
     const STORAGE_ADMIN_UNLOCK_KEY = "pocadrop_admin_unlocked";
 
     // Инициализация логотипа из вашей папки SiteLogo (PocaDrop_logo.png) + встроенный SVG-резерв
@@ -842,7 +818,7 @@
       }
     }
 
-    // Функция компактного сворачивания/разворачивания рядов пилюль в закрепленном блоке на смартфонах
+    // Функция компактного сворачивания/разворачивания рядов пилюль в закрепленном блоке
     function toggleStickyFilterPills() {
       const area = document.getElementById("collapsiblePillsArea");
       const textEl = document.getElementById("toggleFilterPillsText");
@@ -939,19 +915,18 @@
     }
 
     /*************************************************************************
-     * 1. МАССИВ ПРОГРЕССИВНЫХ СКИДОК
+     * 1. ШКАЛА ПРОГРЕССИВНЫХ СКИДОК ДЛЯ СЕТОВ (БАЗА 300 ₽ -> FULL SET 1800 ₽)
      *************************************************************************/
-    const DISCOUNT_TIERS = [
-      { count: 1, price: 400,  discount: 0,    label: '1 фотокарта' },
-      { count: 2, price: 750,  discount: 50,   label: '2 фотокарты' },
-      { count: 3, price: 1050, discount: 150,  label: '3 фотокарты' },
-      { count: 4, price: 1300, discount: 300,  label: '4 фотокарты' },
-      { count: 5, price: 1500, discount: 500,  label: '5 фотокарт' },
-      { count: 6, price: 1650, discount: 750,  label: '6 фотокарт' },
-      { count: 7, price: 1850, discount: 950,  label: '7 фотокарт' },
-      { count: 8, price: 2000, discount: 1200, label: '8 карт • FULL SET' }
+    const SET_DISCOUNT_TIERS = [
+      { count: 1, price: 300,  discount: 0,   label: '1 карта сета' },
+      { count: 2, price: 570,  discount: 30,  label: '2 карты сета' },
+      { count: 3, price: 820,  discount: 80,  label: '3 карты сета' },
+      { count: 4, price: 1050, discount: 150, label: '4 карты сета' },
+      { count: 5, price: 1250, discount: 250, label: '5 карт сета' },
+      { count: 6, price: 1450, discount: 350, label: '6 карт сета' },
+      { count: 7, price: 1630, discount: 470, label: '7 карт сета' },
+      { count: 8, price: 1800, discount: 600, label: '8 карт • FULL SET' }
     ];
-    const RANDOM_CARD_PRICE = 350;
 
     /*************************************************************************
      * 2. ГЕНЕРАТОР РЕЗЕРВНОЙ ОБЛОЖКИ (на случай если у карты в таблице еще нет фото)
@@ -983,16 +958,37 @@
     }
 
     /*************************************************************************
-     * 3. ДИНАМИЧЕСКАЯ БАЗА КАРТ (Заполняется напрямую из Google Таблицы)
+     * 3. ДИНАМИЧЕСКАЯ БАЗА КАРТ И НОРМАЛИЗАЦИЯ ИМЕН МЕМБЕРОВ (ЧЕРЕЗ ЗАПЯТУЮ)
      *************************************************************************/
     let CATALOG_DATA = [];
     let isCatalogLoading = true;
+
+    // Нормализация ключа имени мембера (защита от смешанных русских/английских букв A/А, C/С, E/Е и пробелов)
+    function normalizeMemberKey(name) {
+      return String(name || "")
+        .trim()
+        .toLowerCase()
+        .replace(/а/g, "a")
+        .replace(/е/g, "e")
+        .replace(/о/g, "o")
+        .replace(/с/g, "c")
+        .replace(/р/g, "p")
+        .replace(/х/g, "x")
+        .replace(/\s+/g, " ");
+    }
+
+    // Разбивка поля «Мембер» по запятой для юнит-карт (например, KP-135..138)
+    function parseIndividualMembers(rawMemberStr) {
+      return String(rawMemberStr || "")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
 
     /*************************************************************************
      * 4. СОСТОЯНИЕ ПРИЛОЖЕНИЯ (STATE) С ПАМЯТЬЮ БРАУЗЕРА (LOCALSTORAGE)
      *************************************************************************/
     let cartIds = [];
-    let randomCardCount = 0;
 
     function loadCartFromStorage() {
       try {
@@ -1007,24 +1003,19 @@
             cartIds = savedIds;
           }
         }
-        const savedRandom = parseInt(localStorage.getItem(STORAGE_RANDOM_KEY) || "0", 10);
-        randomCardCount = isNaN(savedRandom) || savedRandom < 0 ? 0 : savedRandom;
       } catch (e) {
         cartIds = [];
-        randomCardCount = 0;
       }
     }
 
     function saveCartToStorage() {
       try {
         localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cartIds));
-        localStorage.setItem(STORAGE_RANDOM_KEY, String(randomCardCount));
       } catch (e) {}
     }
 
     function clearUserCart() {
       cartIds = [];
-      randomCardCount = 0;
       saveCartToStorage();
       updateCartUI();
     }
@@ -1032,77 +1023,181 @@
     let currentFilters = {
       search: "",
       group: "all",
-      member: "all",
+      memberKey: "all",
       album: "all",
-      status: "all"
+      status: "all",
+      setKey: "all"
     };
 
     let activeModalCardId = null;
 
-    // Безопасное экранирование кавычек для inline-обработчиков
     function escapeJsAttr(str) {
       return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
     }
 
     /*************************************************************************
-     * 5. МАТЕМАТИЧЕСКИЙ ДВИЖОК РАСЧЕТА СКИДКИ
+     * 5. МАТЕМАТИЧЕСКИЙ ДВИЖОК РАСЧЕТА КОРЗИНЫ И СКИДОК НА СЕТЫ
      *************************************************************************/
     function calculateCartTotals() {
-      const standardCount = cartIds.length;
-      const baseCostStandard = standardCount * 400;
+      const cartCards = cartIds
+        .map(id => CATALOG_DATA.find(c => c.id === id))
+        .filter(Boolean);
 
-      let discountedStandard = 0;
-      if (standardCount > 0) {
-        const fullSets = Math.floor(standardCount / 8);
-        const remainder = standardCount % 8;
-        discountedStandard += fullSets * 2000;
+      const totalItemsCount = cartCards.length;
+      const OriginalSum = cartCards.reduce((sum, c) => sum + c.price, 0);
+
+      // Группируем акционные карты по их сету (например, Stray Kids • This&That и Stray Kids • DO IT)
+      const setBuckets = {};
+      let regularCardsSum = 0;
+      let totalSetCardsCount = 0;
+
+      cartCards.forEach(card => {
+        if (card.isSetEligible && card.setKey) {
+          if (!setBuckets[card.setKey]) {
+            setBuckets[card.setKey] = {
+              label: `${card.group} — ${card.albumName}`,
+              cards: []
+            };
+          }
+          setBuckets[card.setKey].cards.push(card);
+          totalSetCardsCount++;
+        } else {
+          regularCardsSum += card.price;
+        }
+      });
+
+      let totalDiscountAmount = 0;
+      let bestSetCountForProgress = 0;
+      let activeSetUpsellMessage = "";
+
+      Object.values(setBuckets).forEach(bucket => {
+        const count = bucket.cards.length;
+        if (count > bestSetCountForProgress) bestSetCountForProgress = count;
+
+        const fullSets = Math.floor(count / 8);
+        const remainder = count % 8;
+
+        let bucketDiscount = fullSets * 600;
         if (remainder > 0) {
-          const tier = DISCOUNT_TIERS.find(t => t.count === remainder);
-          discountedStandard += tier ? tier.price : remainder * 400;
+          const tier = SET_DISCOUNT_TIERS.find(t => t.count === remainder);
+          if (tier) bucketDiscount += tier.discount;
+        }
+        totalDiscountAmount += bucketDiscount;
+      });
+
+      const finalPayable = Math.max(0, OriginalSum - totalDiscountAmount);
+
+      if (totalSetCardsCount === 0) {
+        activeSetUpsellMessage = "Добавляйте карты из акционных сетов (помечены бейджем «Скидка на сет»), чтобы получить прогрессивную скидку до 600 ₽!";
+      } else {
+        const mod8 = bestSetCountForProgress % 8;
+        if (mod8 === 0 && bestSetCountForProgress > 0) {
+          activeSetUpsellMessage = "Вы собрали полный сет из 8 карт! Максимальная скидка 600 ₽ (сет за 1 800 ₽) активирована!";
+        } else {
+          const currentTier = SET_DISCOUNT_TIERS.find(t => t.count === mod8);
+          const nextTier = SET_DISCOUNT_TIERS.find(t => t.count === mod8 + 1);
+          const extraDiscount = nextTier && currentTier ? (nextTier.discount - currentTier.discount) : 0;
+          const remainingToFullSet = 8 - mod8;
+          activeSetUpsellMessage = `В сете выбрано ${mod8} из 8 карт. Добавьте еще 1 карту этого сета — скидка вырастет еще на +${extraDiscount} ₽ (до полного сета осталось: ${remainingToFullSet} шт.)`;
         }
       }
 
-      const discountAmount = baseCostStandard - discountedStandard;
-      const randomTotal = randomCardCount * RANDOM_CARD_PRICE;
-      const finalPayable = discountedStandard + randomTotal;
-      const totalItemsCount = standardCount + randomCardCount;
-
-      let upsellMessage = "";
-      const mod8 = standardCount % 8;
-
-      if (standardCount === 0) {
-        upsellMessage = "Добавьте 2 карты в корзину, чтобы получить первую скидку 50 ₽!";
-      } else if (mod8 === 0) {
-        upsellMessage = "Вы собрали FULL SET (8 карт)! Максимальная выгода 1 200 ₽ активирована!";
-      } else {
-        const nextCount = mod8 + 1;
-        const currentTier = DISCOUNT_TIERS.find(t => t.count === mod8);
-        const nextTier = DISCOUNT_TIERS.find(t => t.count === nextCount);
-        const extraDiscount = nextTier.discount - currentTier.discount;
-        const remainingToFullSet = 8 - mod8;
-        upsellMessage = `Добавьте еще 1 карту для следующего уровня (скидка вырастет еще на +${extraDiscount} ₽! До Full Set осталось: ${remainingToFullSet} шт.)`;
-      }
-
       return {
-        standardCount,
-        randomCardCount,
         totalItemsCount,
-        OriginalSum: baseCostStandard + randomTotal,
-        discountAmount,
+        totalSetCardsCount,
+        bestSetCountForProgress,
+        OriginalSum,
+        discountAmount: totalDiscountAmount,
         finalPayable,
-        upsellMessage
+        upsellMessage: activeSetUpsellMessage
       };
     }
 
     /*************************************************************************
-     * 6. РЕНДЕР ТАБЛИЦЫ СКИДОК В HERO-БЛОКЕ
+     * 6. РЕНДЕР ВИТРИНЫ СПЕЦПРЕДЛОЖЕНИЙ СЕТОВ И ШКАЛЫ СКИДОК В HERO
      *************************************************************************/
+    function renderPromoSetsButtons() {
+      const container = document.getElementById("promoSetsSelector");
+      if (!container) return;
+
+      // Находим все уникальные акционные сеты в базе (и даже если сет в процессе разметки по альбому)
+      const setsMap = new Map();
+      CATALOG_DATA.forEach(card => {
+        if (card.isSetEligible && card.setKey) {
+          if (!setsMap.has(card.setKey)) {
+            setsMap.set(card.setKey, {
+              setKey: card.setKey,
+              group: card.group,
+              albumName: card.albumName,
+              count: 0
+            });
+          }
+          setsMap.get(card.setKey).count++;
+        }
+      });
+
+      const setsList = Array.from(setsMap.values());
+      if (setsList.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+
+      const buttonsHtml = setsList.map(setObj => {
+        const isActive = currentFilters.setKey === setObj.setKey;
+        const safeKey = escapeJsAttr(setObj.setKey);
+        return `
+          <button
+            type="button"
+            onclick="selectPromoSetFilter('${safeKey}')"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition border flex items-center gap-1.5 ${
+              isActive
+                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                : "bg-blue-50/90 text-blue-900 border-blue-200 hover:bg-blue-100"
+            }"
+          >
+            <span>Сет: ${setObj.group} — ${setObj.albumName} (${setObj.count} карт)</span>
+          </button>
+        `;
+      });
+
+      if (currentFilters.setKey !== "all") {
+        buttonsHtml.push(`
+          <button
+            type="button"
+            onclick="selectPromoSetFilter('all')"
+            class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition"
+          >
+            Показать весь каталог
+          </button>
+        `);
+      }
+
+      container.innerHTML = buttonsHtml.join("");
+    }
+
+    function selectPromoSetFilter(setKey) {
+      if (currentFilters.setKey === setKey) {
+        currentFilters.setKey = "all";
+      } else {
+        currentFilters.setKey = setKey;
+        currentFilters.group = "all";
+        currentFilters.memberKey = "all";
+        currentFilters.album = "all";
+      }
+      renderPromoSetsButtons();
+      renderGroupPills();
+      renderMemberPills();
+      renderAlbumFilterOptions();
+      renderCatalog();
+    }
+
     function renderDiscountTiers() {
       const grid = document.getElementById("discountTiersGrid");
-      const currentCount = cartIds.length;
+      const totals = calculateCartTotals();
+      const currentCount = totals.bestSetCountForProgress;
       const activeTierNumber = currentCount > 0 ? ((currentCount - 1) % 8) + 1 : 0;
 
-      grid.innerHTML = DISCOUNT_TIERS.map(tier => {
+      grid.innerHTML = SET_DISCOUNT_TIERS.map(tier => {
         const isCurrent = tier.count === activeTierNumber;
         const isFullSet = tier.count === 8;
         const perCard = Math.round(tier.price / tier.count);
@@ -1117,12 +1212,12 @@
                 : "bg-white/85 border-slate-200/80 text-slate-800"
             }"
           >
-            ${isFullSet ? `<span class="absolute top-1.5 right-1.5 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-600 text-white">Хит</span>` : ""}
+            ${isFullSet ? `<span class="absolute top-1.5 right-1.5 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-600 text-white">Выгода</span>` : ""}
             <div class="text-[11px] font-bold ${isCurrent ? "text-blue-200" : "text-slate-500"}">${tier.label}</div>
             <div class="text-base sm:text-lg font-extrabold mt-0.5">${tier.price} ₽</div>
             <div class="flex items-center justify-between mt-1.5 pt-1.5 border-t ${isCurrent ? "border-white/20" : "border-slate-100"} text-[10px]">
               <span class="${isCurrent ? "text-sky-300 font-bold" : tier.discount > 0 ? "text-blue-600 font-bold" : "text-slate-400"}">
-                ${tier.discount > 0 ? `−${tier.discount} ₽ выгода` : "без скидки"}
+                ${tier.discount > 0 ? `−${tier.discount} ₽ скидка` : "базовая цена"}
               </span>
               <span class="${isCurrent ? "text-blue-100" : "text-slate-400"}">${perCard} ₽/шт</span>
             </div>
@@ -1139,14 +1234,14 @@
       const groups = ["all", ...new Set(CATALOG_DATA.map(c => c.group))];
 
       container.innerHTML = groups.map(groupName => {
-        const active = currentFilters.group === groupName;
+        const active = currentFilters.group === groupName && currentFilters.setKey === "all";
         const label = groupName === "all" ? "Все артисты" : groupName;
         const safeGroup = escapeJsAttr(groupName);
         return `
           <button
             type="button"
             onclick="setGroupFilter('${safeGroup}')"
-            class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition border ${
+            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
               active
                 ? "bg-slate-900 text-white border-slate-900 shadow-sm"
                 : "bg-white/95 text-slate-700 border-slate-200 hover:border-blue-300"
@@ -1163,43 +1258,49 @@
       const container = document.getElementById("memberPillsContainer");
       if (!wrapper || !container) return;
 
-      // Показываем фильтр мемберов только когда выбрана конкретная группа
+      // Показываем индивидуальных мемберов, когда выбрана конкретная группа
       if (currentFilters.group === "all") {
         wrapper.classList.add("hidden");
         container.innerHTML = "";
         return;
       }
 
-      const membersInGroup = [...new Set(
-        CATALOG_DATA
-          .filter(c => c.group === currentFilters.group)
-          .map(c => c.member)
-      )];
+      // Собираем уникальных отдельных мемберов группы (разбивая юнит-карты с запятыми на отдельных артистов)
+      const memberMap = new Map();
+      CATALOG_DATA
+        .filter(c => c.group === currentFilters.group)
+        .forEach(card => {
+          card.memberNamesList.forEach(singleName => {
+            const normKey = normalizeMemberKey(singleName);
+            if (normKey && !memberMap.has(normKey)) {
+              memberMap.set(normKey, singleName);
+            }
+          });
+        });
 
-      if (membersInGroup.length === 0) {
+      if (memberMap.size === 0) {
         wrapper.classList.add("hidden");
         container.innerHTML = "";
         return;
       }
 
       wrapper.classList.remove("hidden");
-      const allMembersList = ["all", ...membersInGroup];
+      const entries = [["all", `Все мемберы (${currentFilters.group})`], ...Array.from(memberMap.entries())];
 
-      container.innerHTML = allMembersList.map(memberName => {
-        const active = currentFilters.member === memberName;
-        const label = memberName === "all" ? `Все мемберы (${currentFilters.group})` : memberName;
-        const safeMember = escapeJsAttr(memberName);
+      container.innerHTML = entries.map(([mKey, displayLabel]) => {
+        const active = currentFilters.memberKey === mKey;
+        const safeKey = escapeJsAttr(mKey);
         return `
           <button
             type="button"
-            onclick="setMemberFilter('${safeMember}')"
-            class="px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold shrink-0 transition border ${
+            onclick="setMemberFilter('${safeKey}')"
+            class="px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold transition border ${
               active
                 ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                 : "bg-blue-50/60 text-slate-700 border-blue-100 hover:border-blue-300 hover:bg-blue-50"
             }"
           >
-            ${label}
+            ${displayLabel}
           </button>
         `;
       }).join("");
@@ -1209,14 +1310,12 @@
       const select = document.getElementById("albumFilter");
       if (!select) return;
 
-      // Если выбрана группа — показываем в списке только альбомы этой группы (бонус к логике)
       const relevantCards = CATALOG_DATA.filter(c =>
         currentFilters.group === "all" || c.group === currentFilters.group
       );
 
       const albums = [...new Set(relevantCards.map(c => c.albumName).filter(Boolean))];
 
-      // Если ранее выбранного альбома нет в новой группе — сбрасываем фильтр альбома на "all"
       if (currentFilters.album !== "all" && !albums.includes(currentFilters.album)) {
         currentFilters.album = "all";
       }
@@ -1231,14 +1330,17 @@
 
     function getFilteredCards() {
       return CATALOG_DATA.filter(card => {
+        if (currentFilters.setKey !== "all" && card.setKey !== currentFilters.setKey) return false;
         if (currentFilters.group !== "all" && card.group !== currentFilters.group) return false;
-        if (currentFilters.member !== "all" && card.member !== currentFilters.member) return false;
+        if (currentFilters.memberKey !== "all" && !card.memberKeysList.includes(currentFilters.memberKey)) return false;
         if (currentFilters.album !== "all" && card.albumName !== currentFilters.album) return false;
         if (currentFilters.status !== "all" && card.status !== currentFilters.status) return false;
         if (currentFilters.search.trim() !== "") {
           const q = currentFilters.search.toLowerCase();
+          const qNorm = normalizeMemberKey(q);
           const match =
             card.member.toLowerCase().includes(q) ||
+            card.memberKeysList.some(k => k.includes(qNorm)) ||
             card.group.toLowerCase().includes(q) ||
             card.id.toLowerCase().includes(q) ||
             card.album.toLowerCase().includes(q) ||
@@ -1291,7 +1393,11 @@
           ? "bg-blue-600 text-white"
           : "bg-white/90 text-slate-800";
 
+        // Свободный текст из колонки G + бейдж участия в акции сета
         const conditionBadge = `<span class="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-lg inline-flex items-center gap-1">${card.condition}</span>`;
+        const setPromoBadge = card.isSetEligible
+          ? `<span class="text-[10px] font-bold text-slate-800 bg-sky-100/90 border border-sky-200 px-2 py-0.5 rounded-lg inline-flex items-center">Скидка на сет</span>`
+          : "";
 
         let buttonHtml = "";
         if (!isAvailable) {
@@ -1352,20 +1458,21 @@
                 </div>
               </div>
 
-              <!-- Card Text Metadata -->
+              <!-- Card Text Metadata (Динамическая цена из колонки D) -->
               <div class="px-1 space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-600">
-                  <span>${card.group}</span>
-                  <span class="text-slate-900 font-extrabold text-xs">400 ₽</span>
+                  <span class="truncate pr-1">${card.group}</span>
+                  <span class="text-slate-900 font-extrabold text-xs shrink-0">${card.price} ₽</span>
                 </div>
-                <h3 onclick="openCardModal('${escapeJsAttr(card.id)}')" class="cursor-pointer font-extrabold text-slate-900 text-sm sm:text-base truncate hover:text-blue-700 transition">
+                <h3 onclick="openCardModal('${escapeJsAttr(card.id)}')" class="cursor-pointer font-extrabold text-slate-900 text-sm sm:text-base truncate hover:text-blue-700 transition" title="${card.member}">
                   ${card.member}
                 </h3>
                 <p class="text-[11px] text-slate-500 line-clamp-1" title="${card.album}">
                   ${card.album}
                 </p>
-                <div class="pt-1">
+                <div class="pt-1 flex flex-wrap items-center gap-1">
                   ${conditionBadge}
+                  ${setPromoBadge}
                 </div>
               </div>
             </div>
@@ -1391,20 +1498,16 @@
       cartIds.forEach(id => {
         const card = CATALOG_DATA.find(c => c.id === id);
         if (card) {
-          lines.push(`• ${card.id} - ${card.group} - ${card.member} (${card.album})`);
+          lines.push(`• ${card.id} - ${card.group} - ${card.member} (${card.album}) — ${card.price} ₽`);
         }
       });
-
-      if (randomCardCount > 0) {
-        lines.push(`• RANDOM-PC - Random Photocard (карта наугад) × ${randomCardCount} шт. (${randomCardCount * RANDOM_CARD_PRICE} ₽)`);
-      }
 
       lines.push("");
       lines.push(`Общее количество: ${totals.totalItemsCount} шт.`);
       if (totals.discountAmount > 0) {
-        lines.push(`Скидка по прогрессивной шкале: -${totals.discountAmount} ₽`);
+        lines.push(`Скидка по акции сета: -${totals.discountAmount} ₽`);
       }
-      lines.push(`Итоговая сумма со скидкой: ${totals.finalPayable} ₽.`);
+      lines.push(`Итоговая сумма к оплате: ${totals.finalPayable} ₽.`);
       lines.push("Жду видео с проверкой карт под лампой и реквизиты для оплаты!");
 
       return lines.join("\n");
@@ -1416,14 +1519,11 @@
       document.getElementById("headerCartBadge").textContent = totals.totalItemsCount;
       document.getElementById("headerCartPrice").textContent = `${totals.finalPayable} ₽`;
 
-      document.getElementById("randomCountDisplay").textContent = randomCardCount;
-      document.getElementById("drawerRandomCount").textContent = randomCardCount;
-
-      document.getElementById("activeTierBadge").textContent = `Выбрано карт: ${totals.standardCount} шт.`;
+      document.getElementById("activeTierBadge").textContent = `Карт из сетов: ${totals.totalSetCardsCount} шт.`;
       document.getElementById("heroUpsellText").textContent = totals.upsellMessage;
       const heroBonusPill = document.getElementById("heroBonusPill");
       if (totals.discountAmount > 0) {
-        heroBonusPill.textContent = `Ваша скидка: −${totals.discountAmount} ₽`;
+        heroBonusPill.textContent = `Скидка на сет: −${totals.discountAmount} ₽`;
         heroBonusPill.classList.remove("hidden");
       } else {
         heroBonusPill.classList.add("hidden");
@@ -1447,12 +1547,12 @@
 
       document.getElementById("drawerCountTag").textContent = `${totals.totalItemsCount} шт.`;
       document.getElementById("drawerUpsellTitle").textContent = totals.upsellMessage;
-      const mod8 = totals.standardCount === 0 ? 0 : ((totals.standardCount - 1) % 8) + 1;
+      const mod8 = totals.bestSetCountForProgress === 0 ? 0 : ((totals.bestSetCountForProgress - 1) % 8) + 1;
       document.getElementById("drawerTierProgressLabel").textContent = `${mod8} / 8`;
       document.getElementById("drawerProgressBar").style.width = `${(mod8 / 8) * 100}%`;
 
       const listEl = document.getElementById("cartItemsList");
-      if (cartIds.length === 0 && randomCardCount === 0) {
+      if (cartIds.length === 0) {
         listEl.innerHTML = `
           <div class="text-center py-12 space-y-3 text-slate-400">
             <div class="inline-flex w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 items-center justify-center mx-auto">
@@ -1461,7 +1561,7 @@
               </svg>
             </div>
             <div class="font-bold text-slate-600 text-sm">Ваша корзина пока пуста</div>
-            <p class="text-xs max-w-xs mx-auto">Выберите карты в каталоге PocaDrop или добавьте Random Photocard, чтобы увидеть автоматический расчет скидки.</p>
+            <p class="text-xs max-w-xs mx-auto">Выберите карты в каталоге PocaDrop, чтобы оформить заказ.</p>
           </div>
         `;
       } else {
@@ -1480,6 +1580,7 @@
                   <div class="flex items-center gap-1.5">
                     <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">#${card.id}</span>
                     <span class="text-[10px] font-bold text-blue-600 uppercase truncate">${card.group}</span>
+                    <span class="text-[11px] font-extrabold text-slate-900 ml-auto">${card.price} ₽</span>
                   </div>
                   <div class="font-bold text-slate-900 text-sm truncate">${card.member}</div>
                   <div class="text-[11px] text-slate-400 truncate">${card.album} • ${card.condition}</div>
@@ -1504,6 +1605,7 @@
       document.getElementById("tgMessagePreview").textContent = generateTelegramMessage();
       document.getElementById("checkoutTelegramBtn").disabled = totals.totalItemsCount === 0;
 
+      renderPromoSetsButtons();
       renderDiscountTiers();
       renderCatalog();
     }
@@ -1526,12 +1628,6 @@
       if (activeModalCardId === cardId) {
         syncModalButton(card);
       }
-    }
-
-    function changeRandomCount(delta) {
-      randomCardCount = Math.max(0, randomCardCount + delta);
-      saveCartToStorage();
-      updateCartUI();
     }
 
     function toggleCartDrawer(open) {
@@ -1588,7 +1684,7 @@
         notice.classList.remove("hidden");
       }
 
-      const compactIds = cartIds.join("_") + (randomCardCount > 0 ? `_R${randomCardCount}` : "");
+      const compactIds = cartIds.join("_");
       const tgDeepLink = `tg://resolve?domain=${TELEGRAM_BOT_USERNAME}&start=order_${compactIds}&text=${encodedText}`;
       const webFallbackLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=order_${compactIds}&text=${encodedText}`;
 
@@ -1635,6 +1731,12 @@
       document.getElementById("modalGroupName").textContent = card.group;
       document.getElementById("modalMemberName").textContent = card.member;
       document.getElementById("modalAlbumTitle").textContent = `Релиз: ${card.album}`;
+      document.getElementById("modalCardPrice").textContent = `${card.price} ₽`;
+
+      const promoBox = document.getElementById("modalSetPromoBox");
+      if (promoBox) {
+        promoBox.classList.toggle("hidden", !card.isSetEligible);
+      }
 
       const statusBadge = document.getElementById("modalStatusBadge");
       if (card.status === "available") {
@@ -1649,7 +1751,7 @@
       }
 
       document.getElementById("modalConditionIcon").textContent = "";
-      document.getElementById("modalConditionTitle").textContent = card.condition || "Новая карта (Official Mint)";
+      document.getElementById("modalConditionTitle").textContent = card.condition;
       document.getElementById("modalConditionDesc").textContent = card.conditionNote;
 
       syncModalButton(card);
@@ -1674,7 +1776,9 @@
         btn.onclick = () => toggleCardInCart(card.id);
       } else {
         btn.disabled = false;
-        btn.textContent = "+ Положить в корзину за 400 ₽ (от 250 ₽ в сете)";
+        btn.textContent = card.isSetEligible
+          ? `+ Положить в корзину за ${card.price} ₽ (от 225 ₽ в сете)`
+          : `+ Положить в корзину за ${card.price} ₽`;
         btn.className = "w-full py-3.5 px-5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-blue-700 text-white shadow-lg transition";
         btn.onclick = () => toggleCardInCart(card.id);
       }
@@ -1692,25 +1796,28 @@
      * 11. УПРАВЛЕНИЕ ФИЛЬТРАМИ И ИНИЦИАЛИЗАЦИЯ
      *************************************************************************/
     function setGroupFilter(groupName) {
+      currentFilters.setKey = "all";
       currentFilters.group = groupName;
-      currentFilters.member = "all"; // При смене группы сбрасываем выбранного мембера
+      currentFilters.memberKey = "all";
+      renderPromoSetsButtons();
       renderGroupPills();
       renderMemberPills();
       renderAlbumFilterOptions();
       renderCatalog();
     }
 
-    function setMemberFilter(memberName) {
-      currentFilters.member = memberName;
+    function setMemberFilter(memberKey) {
+      currentFilters.memberKey = memberKey;
       renderMemberPills();
       renderCatalog();
     }
 
     function resetAllFilters() {
-      currentFilters = { search: "", group: "all", member: "all", album: "all", status: "all" };
+      currentFilters = { search: "", group: "all", memberKey: "all", album: "all", status: "all", setKey: "all" };
       document.getElementById("searchInput").value = "";
       document.getElementById("clearSearchBtn").classList.add("hidden");
       document.getElementById("statusFilter").value = "all";
+      renderPromoSetsButtons();
       renderGroupPills();
       renderMemberPills();
       renderAlbumFilterOptions();
@@ -1751,7 +1858,6 @@
         category = "Album";
       }
 
-      // Чистое название альбома из колонки F (для фильтра и верхнего левого бейджа)
       const pureAlbumName = (rawAlbum || "").trim() || text || "Album";
 
       const isShortStandard = ["album", "pob", "lucky draw", "fanmeet"].includes(low);
@@ -1764,6 +1870,12 @@
         pureAlbumName,
         fullAlbumTitle: fullAlbumTitle || pureAlbumName
       };
+    }
+
+    function parsePriceFromColumnD(rawPrice) {
+      const digits = String(rawPrice || "").replace(/[^\d]/g, "");
+      const parsed = parseInt(digits, 10);
+      return !isNaN(parsed) && parsed > 0 ? parsed : 400;
     }
 
     function parseCSVRows(csvText) {
@@ -1807,42 +1919,58 @@
           if (rows.length < 2) continue;
 
           const loadedCards = rows.slice(1).map((cols) => {
-            const [id, member, group, genderRaw, releaseRaw, albumRaw, condition, conditionNote, statusRaw, photoRaw] = cols;
+            // Колонки: A=ID, B=Мембер, C=Группа, D=Цена, E=Тип релиза, F=Альбом, G=Тип карты, H=Описание, I=Статус, J=Фото
+            const [id, member, group, priceRaw, releaseRaw, albumRaw, conditionRaw, conditionNoteRaw, statusRaw, photoRaw] = cols;
             if (!id || !member) return null;
 
-            // Защита через колонку I: если стоит статус «Черновик» (или Draft / Скрыто), карта не выводится на сайт
+            // Защита через колонку I: если стоит «Черновик», карточка не выводится на сайт
             const sLow = (statusRaw || "").trim().toLowerCase();
             if (sLow.includes("черновик") || sLow.includes("draft") || sLow.includes("скрыт")) {
               return null;
             }
 
-            const gLow = (genderRaw || "").toLowerCase();
-            const gender = (gLow.includes("жен") || gLow.includes("girl") || gLow === "ж") ? "girl" : "boy";
-
             let status = "available";
             if (sLow.includes("брон") || sLow === "reserved") status = "reserved";
             else if (sLow.includes("прод") || sLow === "sold") status = "sold";
 
+            const price = parsePriceFromColumnD(priceRaw);
             const { category, pureAlbumName, fullAlbumTitle } = normalizeReleaseCategory(releaseRaw, albumRaw);
+
+            // Свободный текст из колонок G и H (никак не отсеивает карточку)
+            const freeCondition = (conditionRaw || "").trim() || "Новая (Official)";
+            const freeConditionNote = (conditionNoteRaw || "").trim() || "Абсолютно новая оригинальная карта в защитном протекторе.";
+
+            // Проверка на участие в акционном сете по фразе «скидка при покупке сета» в колонке H
+            const isSetEligible = freeConditionNote.toLowerCase().includes("скидка при покупке сета");
+            const cleanGroup = (group || "K-Pop").trim();
+            const setKey = isSetEligible ? `${cleanGroup}__${pureAlbumName}` : "";
+
+            // Поддержка нескольких артистов через запятую (для юнит-карт KP-135..138)
+            const memberNamesList = parseIndividualMembers(member);
+            const memberKeysList = memberNamesList.map(normalizeMemberKey);
 
             const fallbackUrl = createFallbackCardArt(
               member.split("(")[0].trim(),
-              group || "K-POP",
+              cleanGroup,
               fullAlbumTitle.slice(0, 28),
-              gender === "girl" ? "#3b82f6" : "#1d4ed8",
-              gender === "girl" ? "#38bdf8" : "#0284c7"
+              "#1d4ed8",
+              "#0284c7"
             );
 
             return {
               id: id.trim(),
               member: member.trim(),
-              group: (group || "K-Pop").trim(),
-              gender,
+              memberNamesList,
+              memberKeysList,
+              group: cleanGroup,
+              price,
               releaseType: category,
               albumName: pureAlbumName,
               album: fullAlbumTitle,
-              condition: (condition || "Новая (Official)").trim(),
-              conditionNote: (conditionNote || "Абсолютно новая оригинальная карта в защитном протекторе.").trim(),
+              condition: freeCondition,
+              conditionNote: freeConditionNote,
+              isSetEligible,
+              setKey,
               status,
               photoUrl: convertDrivePhotoUrl(photoRaw, fallbackUrl),
               fallbackUrl
@@ -1853,6 +1981,7 @@
           isCatalogLoading = false;
           loadCartFromStorage();
           saveCartToStorage();
+          renderPromoSetsButtons();
           renderGroupPills();
           renderMemberPills();
           renderAlbumFilterOptions();
@@ -1864,6 +1993,7 @@
       }
 
       isCatalogLoading = false;
+      renderPromoSetsButtons();
       renderGroupPills();
       renderMemberPills();
       renderAlbumFilterOptions();
@@ -1876,9 +2006,6 @@
       loadCartFromStorage();
 
       document.getElementById("openCartHeaderBtn").addEventListener("click", () => toggleCartDrawer(true));
-
-      document.getElementById("randomMinusBtn").addEventListener("click", () => changeRandomCount(-1));
-      document.getElementById("randomPlusBtn").addEventListener("click", () => changeRandomCount(1));
 
       const searchInput = document.getElementById("searchInput");
       const clearSearchBtn = document.getElementById("clearSearchBtn");
@@ -1904,6 +2031,7 @@
       });
       document.getElementById("resetFiltersBtn").addEventListener("click", resetAllFilters);
 
+      renderPromoSetsButtons();
       renderGroupPills();
       renderMemberPills();
       renderAlbumFilterOptions();
