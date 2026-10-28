@@ -25,7 +25,7 @@
     }
     /* Glassmorphism */
     .glass {
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(226, 232, 240, 0.9);
@@ -82,6 +82,9 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+    /* Hide scrollbar for horizontal pill containers */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     /* Card Aspect Ratio (Standard K-pop Photocard 55x85mm) */
     .photocard-ratio {
       aspect-ratio: 55 / 85;
@@ -170,7 +173,7 @@
   <div class="fixed top-[35%] right-[-10%] w-96 h-96 bg-sky-200/25 rounded-full blur-3xl pointer-events-none -z-10"></div>
   <div class="fixed bottom-[-10%] left-[25%] w-96 h-96 bg-blue-100/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-  <!-- HEADER (Закрепленная шапка) -->
+  <!-- HEADER (Закрепленная шапка — чистая и минималистичная) -->
   <header class="sticky top-0 z-40 glass shadow-sm transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
       <!-- Logo -->
@@ -187,20 +190,6 @@
           <span class="hidden sm:inline-block ml-2 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">pocadrop.ru</span>
         </div>
       </a>
-
-      <!-- Search Bar -->
-      <div class="relative flex-1 max-w-md mx-2">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="Поиск по мемберу, группе или ID (напр. Felix, Stray Kids)..."
-          class="w-full pl-10 pr-8 py-2.5 rounded-2xl bg-white/90 border border-slate-200 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none text-sm transition"
-        />
-        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
-        </svg>
-        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs px-1">✕</button>
-      </div>
 
       <!-- Right Action: Cart Button -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -379,61 +368,85 @@
       </div>
     </section>
 
-    <!-- ПАНЕЛЬ ФИЛЬТРОВ И СТАТУС БАР -->
-    <section class="space-y-4">
-      <div class="glass rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
+    <!-- ПРИЛИПАЮЩАЯ (STICKY) ПАНЕЛЬ ПОИСКА И КАСКАДНЫХ ФИЛЬТРОВ -->
+    <section id="stickyFilterSection" class="sticky top-16 sm:top-20 z-30 pt-1 pb-1 transition-all">
+      <div class="glass-strong rounded-3xl p-3 sm:p-4 shadow-md shadow-slate-900/5 border border-slate-200/90 space-y-2.5">
 
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <!-- Category Gender Tabs -->
-          <div class="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
-            <button data-gender="all" class="gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm">
-              Все группы
-            </button>
-            <button data-gender="boy" class="gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
-              Мужские (Boy Groups)
-            </button>
-            <button data-gender="girl" class="gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900">
-              Женские (Girl Groups)
-            </button>
+        <!-- Верхний ряд: Строка поиска (вместо вкладок пола) + Выбор альбома + Статус + Сброс -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
+          <!-- Полноценная строка поиска -->
+          <div class="relative flex-1">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Поиск по мемберу, группе, альбому или ID (напр. Felix, Stray Kids)..."
+              class="w-full pl-9 pr-8 py-2 rounded-2xl bg-slate-50/90 border border-slate-200 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none text-xs sm:text-sm transition"
+            />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+            </svg>
+            <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs px-1">✕</button>
           </div>
 
-          <!-- Condition & Availability Filters -->
-          <div class="flex flex-wrap items-center gap-2">
-            <select id="releaseFilter" class="px-3.5 py-2 rounded-xl bg-white/95 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 outline-none focus:border-blue-400">
-              <option value="all">Все типы релизов</option>
-              <option value="Album">Album (Альбомные)</option>
-              <option value="POB">POB (Предзаказ)</option>
-              <option value="Lucky Draw">Lucky Draw (Редкие)</option>
-              <option value="Fanmeet">Fanmeet (Фанмитинг)</option>
+          <!-- Выпадающие фильтры: Выбор альбома (Колонка F) и Статус наличия -->
+          <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar shrink-0">
+            <select id="albumFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 shrink-0 max-w-[170px] sm:max-w-[220px] truncate">
+              <option value="all">Все альбомы</option>
+              <!-- JS динамически подставляет альбомы из колонки F -->
             </select>
 
-            <select id="statusFilter" class="px-3.5 py-2 rounded-xl bg-white/95 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 outline-none focus:border-blue-400">
+            <select id="statusFilter" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400 shrink-0">
               <option value="all">Все статусы наличия</option>
               <option value="available">Только в наличии</option>
               <option value="reserved">Бронь</option>
               <option value="sold">Продано</option>
             </select>
 
-            <button id="resetFiltersBtn" class="px-3 py-2 rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-50 transition">
+            <button id="resetFiltersBtn" class="px-2.5 py-2 rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-50 transition shrink-0">
               Сбросить
+            </button>
+
+            <!-- Кнопка компактного сворачивания пилюль на мобильных при скролле -->
+            <button
+              type="button"
+              id="toggleFilterPillsBtn"
+              onclick="toggleStickyFilterPills()"
+              class="md:hidden px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 shrink-0 transition"
+              title="Свернуть или развернуть списки групп и мемберов"
+            >
+              <span id="toggleFilterPillsText">Свернуть</span>
+              <svg id="toggleFilterPillsIcon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+              </svg>
             </button>
           </div>
         </div>
 
-        <!-- Group Pills -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar" id="groupPillsContainer">
-          <!-- JS injects group buttons -->
-        </div>
-      </div>
+        <!-- Сворачиваемый блок пилюль: Группы + Каскадный ряд Мемберов выбранной группы -->
+        <div id="collapsiblePillsArea" class="space-y-2 pt-0.5">
+          <!-- Ряд 1: Кнопки групп -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar" id="groupPillsContainer">
+            <!-- JS injects group buttons -->
+          </div>
 
-      <!-- Info Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-500">
-        <div>
-          Найдено позиций в каталоге: <strong id="catalogCountLabel" class="text-slate-800">0</strong>
-          <span class="hidden sm:inline ml-2 text-slate-400">• Нажмите на фото карты, чтобы посмотреть подробную информацию о релизе</span>
+          <!-- Ряд 2: Каскадный фильтр мемберов (появляется при выборе конкретной группы) -->
+          <div id="memberPillsWrapper" class="hidden pt-1.5 border-t border-slate-200/70">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar" id="memberPillsContainer">
+              <!-- JS injects member buttons for the selected group -->
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
+
+    <!-- СТРОКА СТАТИСТИКИ НАЙДЕННЫХ КАРТ -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-2 text-xs text-slate-500">
+      <div>
+        Найдено позиций в каталоге: <strong id="catalogCountLabel" class="text-slate-800">0</strong>
+        <span class="hidden sm:inline ml-2 text-slate-400">• Нажмите на фото карты, чтобы посмотреть подробную информацию о релизе</span>
+      </div>
+    </div>
 
     <!-- КАТАЛОГ ФОТОКАРТ (Сетка: 2 колонки на мобильных, 4 на десктопе) -->
     <section>
@@ -460,7 +473,7 @@
           </svg>
         </div>
         <h3 class="text-lg font-bold text-slate-800">По выбранным фильтрам карт не найдено</h3>
-        <p class="text-sm text-slate-500 max-w-md mx-auto">Попробуйте сбросить фильтры группы или типа релиза, чтобы увидеть все доступные позиции.</p>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">Попробуйте сбросить фильтры группы, мембера или альбома, чтобы увидеть все доступные позиции.</p>
         <button onclick="resetAllFilters()" class="px-5 py-2.5 rounded-2xl bg-slate-900 text-white text-sm font-bold shadow-md hover:bg-blue-700 transition">
           Показать все карты
         </button>
@@ -601,14 +614,14 @@
           <div class="space-y-3.5 sm:space-y-4">
             <div class="flex items-center gap-2 flex-wrap">
               <span id="modalCardId" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">#KP-01</span>
-              <span id="modalReleaseBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-100">POB</span>
+              <span id="modalReleaseBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-100">Album</span>
               <span id="modalStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800">В наличии</span>
             </div>
 
             <div>
               <div id="modalGroupName" class="text-xs font-bold uppercase tracking-wider text-blue-600">STRAY KIDS</div>
               <h3 id="modalMemberName" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Felix (Феликс)</h3>
-              <p id="modalAlbumTitle" class="text-xs text-slate-500 mt-1">Релиз: 5-STAR (Soundwave POB Exclusive)</p>
+              <p id="modalAlbumTitle" class="text-xs text-slate-500 mt-1">Релиз: 5-STAR</p>
             </div>
 
             <!-- Authenticity & Condition Box -->
@@ -829,6 +842,18 @@
       }
     }
 
+    // Функция компактного сворачивания/разворачивания рядов пилюль в закрепленном блоке на смартфонах
+    function toggleStickyFilterPills() {
+      const area = document.getElementById("collapsiblePillsArea");
+      const textEl = document.getElementById("toggleFilterPillsText");
+      const iconEl = document.getElementById("toggleFilterPillsIcon");
+      if (!area) return;
+      const isHidden = area.classList.contains("hidden");
+      area.classList.toggle("hidden", !isHidden);
+      if (textEl) textEl.textContent = isHidden ? "Свернуть" : "Фильтры";
+      if (iconEl) iconEl.style.transform = isHidden ? "rotate(0deg)" : "rotate(180deg)";
+    }
+
     /*************************************************************************
      * УПРАВЛЕНИЕ ИСТОРИЕЙ БРАУЗЕРА (КНОПКА «НАЗАД» НА МОБИЛЬНЫХ ДЛЯ ОКОН)
      *************************************************************************/
@@ -1006,13 +1031,18 @@
 
     let currentFilters = {
       search: "",
-      gender: "all",
       group: "all",
-      releaseType: "all",
+      member: "all",
+      album: "all",
       status: "all"
     };
 
     let activeModalCardId = null;
+
+    // Безопасное экранирование кавычек для inline-обработчиков
+    function escapeJsAttr(str) {
+      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
 
     /*************************************************************************
      * 5. МАТЕМАТИЧЕСКИЙ ДВИЖОК РАСЧЕТА СКИДКИ
@@ -1102,26 +1132,24 @@
     }
 
     /*************************************************************************
-     * 7. РЕНДЕР КНОПОК ГРУПП И КАТАЛОГА КАРТ
+     * 7. КАСКАДНЫЕ ФИЛЬТРЫ (ГРУППЫ -> МЕМБЕРЫ + АЛЬБОМЫ ИЗ КОЛОНКИ F) И КАТАЛОГ
      *************************************************************************/
     function renderGroupPills() {
       const container = document.getElementById("groupPillsContainer");
-      const groups = ["all", ...new Set(
-        CATALOG_DATA
-          .filter(c => currentFilters.gender === "all" || c.gender === currentFilters.gender)
-          .map(c => c.group)
-      )];
+      const groups = ["all", ...new Set(CATALOG_DATA.map(c => c.group))];
 
       container.innerHTML = groups.map(groupName => {
         const active = currentFilters.group === groupName;
         const label = groupName === "all" ? "Все артисты" : groupName;
+        const safeGroup = escapeJsAttr(groupName);
         return `
           <button
-            onclick="setGroupFilter('${groupName}')"
+            type="button"
+            onclick="setGroupFilter('${safeGroup}')"
             class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition border ${
               active
                 ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                : "bg-white/90 text-slate-700 border-slate-200 hover:border-blue-300"
+                : "bg-white/95 text-slate-700 border-slate-200 hover:border-blue-300"
             }"
           >
             ${label}
@@ -1130,11 +1158,82 @@
       }).join("");
     }
 
+    function renderMemberPills() {
+      const wrapper = document.getElementById("memberPillsWrapper");
+      const container = document.getElementById("memberPillsContainer");
+      if (!wrapper || !container) return;
+
+      // Показываем фильтр мемберов только когда выбрана конкретная группа
+      if (currentFilters.group === "all") {
+        wrapper.classList.add("hidden");
+        container.innerHTML = "";
+        return;
+      }
+
+      const membersInGroup = [...new Set(
+        CATALOG_DATA
+          .filter(c => c.group === currentFilters.group)
+          .map(c => c.member)
+      )];
+
+      if (membersInGroup.length === 0) {
+        wrapper.classList.add("hidden");
+        container.innerHTML = "";
+        return;
+      }
+
+      wrapper.classList.remove("hidden");
+      const allMembersList = ["all", ...membersInGroup];
+
+      container.innerHTML = allMembersList.map(memberName => {
+        const active = currentFilters.member === memberName;
+        const label = memberName === "all" ? `Все мемберы (${currentFilters.group})` : memberName;
+        const safeMember = escapeJsAttr(memberName);
+        return `
+          <button
+            type="button"
+            onclick="setMemberFilter('${safeMember}')"
+            class="px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold shrink-0 transition border ${
+              active
+                ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                : "bg-blue-50/60 text-slate-700 border-blue-100 hover:border-blue-300 hover:bg-blue-50"
+            }"
+          >
+            ${label}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderAlbumFilterOptions() {
+      const select = document.getElementById("albumFilter");
+      if (!select) return;
+
+      // Если выбрана группа — показываем в списке только альбомы этой группы (бонус к логике)
+      const relevantCards = CATALOG_DATA.filter(c =>
+        currentFilters.group === "all" || c.group === currentFilters.group
+      );
+
+      const albums = [...new Set(relevantCards.map(c => c.albumName).filter(Boolean))];
+
+      // Если ранее выбранного альбома нет в новой группе — сбрасываем фильтр альбома на "all"
+      if (currentFilters.album !== "all" && !albums.includes(currentFilters.album)) {
+        currentFilters.album = "all";
+      }
+
+      select.innerHTML = [
+        `<option value="all">Все альбомы</option>`,
+        ...albums.map(alb => `<option value="${alb.replace(/"/g, '&quot;')}">${alb}</option>`)
+      ].join("");
+
+      select.value = currentFilters.album;
+    }
+
     function getFilteredCards() {
       return CATALOG_DATA.filter(card => {
-        if (currentFilters.gender !== "all" && card.gender !== currentFilters.gender) return false;
         if (currentFilters.group !== "all" && card.group !== currentFilters.group) return false;
-        if (currentFilters.releaseType !== "all" && card.releaseType !== currentFilters.releaseType) return false;
+        if (currentFilters.member !== "all" && card.member !== currentFilters.member) return false;
+        if (currentFilters.album !== "all" && card.albumName !== currentFilters.album) return false;
         if (currentFilters.status !== "all" && card.status !== currentFilters.status) return false;
         if (currentFilters.search.trim() !== "") {
           const q = currentFilters.search.toLowerCase();
@@ -1142,7 +1241,8 @@
             card.member.toLowerCase().includes(q) ||
             card.group.toLowerCase().includes(q) ||
             card.id.toLowerCase().includes(q) ||
-            card.album.toLowerCase().includes(q);
+            card.album.toLowerCase().includes(q) ||
+            card.albumName.toLowerCase().includes(q);
           if (!match) return false;
         }
         return true;
@@ -1180,11 +1280,11 @@
 
         let statusBadge = "";
         if (card.status === "available") {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-slate-900 border border-slate-200 shadow">В наличии</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-slate-900 border border-slate-200 shadow shrink-0">В наличии</span>`;
         } else if (card.status === "reserved") {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100/95 text-slate-700 border border-slate-300 shadow">Бронь</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100/95 text-slate-700 border border-slate-300 shadow shrink-0">Бронь</span>`;
         } else {
-          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800/90 text-white shadow">Продано</span>`;
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800/90 text-white shadow shrink-0">Продано</span>`;
         }
 
         const releaseBadgeClass = isHolo
@@ -1203,7 +1303,7 @@
         } else if (inCart) {
           buttonHtml = `
             <button
-              onclick="toggleCardInCart('${card.id}')"
+              onclick="toggleCardInCart('${escapeJsAttr(card.id)}')"
               class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition group/btn"
             >
               <span class="group-hover/btn:hidden">✓ В корзине (Убрать)</span>
@@ -1213,7 +1313,7 @@
         } else {
           buttonHtml = `
             <button
-              onclick="toggleCardInCart('${card.id}')"
+              onclick="toggleCardInCart('${escapeJsAttr(card.id)}')"
               class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition active:scale-95"
             >
               + Положить в корзину
@@ -1226,7 +1326,7 @@
             <div>
               <!-- Image Container -->
               <div
-                onclick="openCardModal('${card.id}')"
+                onclick="openCardModal('${escapeJsAttr(card.id)}')"
                 class="cursor-pointer relative photocard-ratio w-full rounded-2xl overflow-hidden bg-slate-100 mb-3 shadow-inner ${isHolo ? "holo-card" : ""}"
               >
                 <img
@@ -1237,10 +1337,10 @@
                   loading="lazy"
                 />
 
-                <!-- Top Overlays -->
-                <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1 pointer-events-none">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow ${releaseBadgeClass}">
-                    ${card.releaseType}
+                <!-- Top Overlays: Слева название альбома из колонки F, справа статус -->
+                <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1.5 pointer-events-none">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow truncate max-w-[62%] ${releaseBadgeClass}" title="${card.albumName}">
+                    ${card.albumName}
                   </span>
                   ${statusBadge}
                 </div>
@@ -1258,7 +1358,7 @@
                   <span>${card.group}</span>
                   <span class="text-slate-900 font-extrabold text-xs">400 ₽</span>
                 </div>
-                <h3 onclick="openCardModal('${card.id}')" class="cursor-pointer font-extrabold text-slate-900 text-sm sm:text-base truncate hover:text-blue-700 transition">
+                <h3 onclick="openCardModal('${escapeJsAttr(card.id)}')" class="cursor-pointer font-extrabold text-slate-900 text-sm sm:text-base truncate hover:text-blue-700 transition">
                   ${card.member}
                 </h3>
                 <p class="text-[11px] text-slate-500 line-clamp-1" title="${card.album}">
@@ -1291,7 +1391,7 @@
       cartIds.forEach(id => {
         const card = CATALOG_DATA.find(c => c.id === id);
         if (card) {
-          lines.push(`• ${card.id} - ${card.group} - ${card.member} (${card.releaseType})`);
+          lines.push(`• ${card.id} - ${card.group} - ${card.member} (${card.album})`);
         }
       });
 
@@ -1382,11 +1482,11 @@
                     <span class="text-[10px] font-bold text-blue-600 uppercase truncate">${card.group}</span>
                   </div>
                   <div class="font-bold text-slate-900 text-sm truncate">${card.member}</div>
-                  <div class="text-[11px] text-slate-400 truncate">${card.releaseType} • ${card.condition}</div>
+                  <div class="text-[11px] text-slate-400 truncate">${card.album} • ${card.condition}</div>
                 </div>
               </div>
               <button
-                onclick="toggleCardInCart('${card.id}')"
+                onclick="toggleCardInCart('${escapeJsAttr(card.id)}')"
                 class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0 transition"
                 title="Удалить из корзины"
               >
@@ -1531,7 +1631,7 @@
       };
 
       document.getElementById("modalCardId").textContent = `#${card.id}`;
-      document.getElementById("modalReleaseBadge").textContent = card.releaseType;
+      document.getElementById("modalReleaseBadge").textContent = card.albumName;
       document.getElementById("modalGroupName").textContent = card.group;
       document.getElementById("modalMemberName").textContent = card.member;
       document.getElementById("modalAlbumTitle").textContent = `Релиз: ${card.album}`;
@@ -1589,28 +1689,31 @@
     }
 
     /*************************************************************************
-     * 11. ФИЛЬТРЫ И ИНИЦИАЛИЗАЦИЯ
+     * 11. УПРАВЛЕНИЕ ФИЛЬТРАМИ И ИНИЦИАЛИЗАЦИЯ
      *************************************************************************/
     function setGroupFilter(groupName) {
       currentFilters.group = groupName;
+      currentFilters.member = "all"; // При смене группы сбрасываем выбранного мембера
       renderGroupPills();
+      renderMemberPills();
+      renderAlbumFilterOptions();
+      renderCatalog();
+    }
+
+    function setMemberFilter(memberName) {
+      currentFilters.member = memberName;
+      renderMemberPills();
       renderCatalog();
     }
 
     function resetAllFilters() {
-      currentFilters = { search: "", gender: "all", group: "all", releaseType: "all", status: "all" };
+      currentFilters = { search: "", group: "all", member: "all", album: "all", status: "all" };
       document.getElementById("searchInput").value = "";
       document.getElementById("clearSearchBtn").classList.add("hidden");
-      document.getElementById("releaseFilter").value = "all";
       document.getElementById("statusFilter").value = "all";
-      document.querySelectorAll(".gender-btn").forEach(btn => {
-        if (btn.dataset.gender === "all") {
-          btn.className = "gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm";
-        } else {
-          btn.className = "gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900";
-        }
-      });
       renderGroupPills();
+      renderMemberPills();
+      renderAlbumFilterOptions();
       renderCatalog();
     }
 
@@ -1648,12 +1751,19 @@
         category = "Album";
       }
 
+      // Чистое название альбома из колонки F (для фильтра и верхнего левого бейджа)
+      const pureAlbumName = (rawAlbum || "").trim() || text || "Album";
+
       const isShortStandard = ["album", "pob", "lucky draw", "fanmeet"].includes(low);
       let fullAlbumTitle = (rawAlbum || "").trim();
       if (text && !isShortStandard) {
         fullAlbumTitle = fullAlbumTitle ? `${fullAlbumTitle} • ${text}` : text;
       }
-      return { category, fullAlbumTitle: fullAlbumTitle || "Official Release" };
+      return {
+        category,
+        pureAlbumName,
+        fullAlbumTitle: fullAlbumTitle || pureAlbumName
+      };
     }
 
     function parseCSVRows(csvText) {
@@ -1700,15 +1810,20 @@
             const [id, member, group, genderRaw, releaseRaw, albumRaw, condition, conditionNote, statusRaw, photoRaw] = cols;
             if (!id || !member) return null;
 
+            // Защита через колонку I: если стоит статус «Черновик» (или Draft / Скрыто), карта не выводится на сайт
+            const sLow = (statusRaw || "").trim().toLowerCase();
+            if (sLow.includes("черновик") || sLow.includes("draft") || sLow.includes("скрыт")) {
+              return null;
+            }
+
             const gLow = (genderRaw || "").toLowerCase();
             const gender = (gLow.includes("жен") || gLow.includes("girl") || gLow === "ж") ? "girl" : "boy";
 
-            const sLow = (statusRaw || "").toLowerCase();
             let status = "available";
             if (sLow.includes("брон") || sLow === "reserved") status = "reserved";
             else if (sLow.includes("прод") || sLow === "sold") status = "sold";
 
-            const { category, fullAlbumTitle } = normalizeReleaseCategory(releaseRaw, albumRaw);
+            const { category, pureAlbumName, fullAlbumTitle } = normalizeReleaseCategory(releaseRaw, albumRaw);
 
             const fallbackUrl = createFallbackCardArt(
               member.split("(")[0].trim(),
@@ -1724,6 +1839,7 @@
               group: (group || "K-Pop").trim(),
               gender,
               releaseType: category,
+              albumName: pureAlbumName,
               album: fullAlbumTitle,
               condition: (condition || "Новая (Official)").trim(),
               conditionNote: (conditionNote || "Абсолютно новая оригинальная карта в защитном протекторе.").trim(),
@@ -1738,6 +1854,8 @@
           loadCartFromStorage();
           saveCartToStorage();
           renderGroupPills();
+          renderMemberPills();
+          renderAlbumFilterOptions();
           updateCartUI();
           return;
         } catch (err) {
@@ -1747,6 +1865,8 @@
 
       isCatalogLoading = false;
       renderGroupPills();
+      renderMemberPills();
+      renderAlbumFilterOptions();
       updateCartUI();
     }
 
@@ -1774,21 +1894,8 @@
         renderCatalog();
       });
 
-      document.querySelectorAll(".gender-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentFilters.gender = btn.dataset.gender;
-          currentFilters.group = "all";
-          document.querySelectorAll(".gender-btn").forEach(b => {
-            b.className = "gender-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:text-slate-900";
-          });
-          btn.className = "gender-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition bg-white text-slate-900 shadow-sm";
-          renderGroupPills();
-          renderCatalog();
-        });
-      });
-
-      document.getElementById("releaseFilter").addEventListener("change", e => {
-        currentFilters.releaseType = e.target.value;
+      document.getElementById("albumFilter").addEventListener("change", e => {
+        currentFilters.album = e.target.value;
         renderCatalog();
       });
       document.getElementById("statusFilter").addEventListener("change", e => {
@@ -1798,6 +1905,8 @@
       document.getElementById("resetFiltersBtn").addEventListener("click", resetAllFilters);
 
       renderGroupPills();
+      renderMemberPills();
+      renderAlbumFilterOptions();
       updateCartUI();
       syncCatalogFromGoogleSheet();
     });
