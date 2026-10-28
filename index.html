@@ -542,11 +542,11 @@
   </footer>
 
   <!-- ИНФОРМАЦИОННОЕ МОДАЛЬНОЕ ОКНО (Для отзывов и правил) -->
-  <div id="infoModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="glass-strong rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white space-y-4">
-      <div class="flex items-center justify-between">
+  <div id="infoModal" onclick="if(event.target === this) closeInfoModal()" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-sm">
+    <div class="glass-strong rounded-3xl max-w-md w-full max-h-[85dvh] overflow-y-auto p-6 shadow-2xl border border-white space-y-4 relative">
+      <div class="flex items-center justify-between gap-3 sticky top-0 bg-white/95 backdrop-blur-md py-1 z-10">
         <h3 id="infoModalTitle" class="text-lg font-extrabold text-slate-900">Информация</h3>
-        <button onclick="closeInfoModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
+        <button onclick="closeInfoModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shrink-0">✕</button>
       </div>
       <p id="infoModalBody" class="text-sm text-slate-600 whitespace-pre-line leading-relaxed"></p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-blue-700 text-white font-bold text-sm transition">Понятно</button>
@@ -576,27 +576,29 @@
   </div>
 
   <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЬНОГО ПРОСМОТРА КАРТЫ -->
-  <div id="cardModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/60 backdrop-blur-sm">
-    <div class="glass-strong rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-white relative animate-fadeIn">
-      <!-- Close button -->
-      <button onclick="closeCardModal()" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 font-bold shadow flex items-center justify-center transition">
-        ✕
-      </button>
+  <div id="cardModal" onclick="if(event.target === this) closeCardModal()" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/60 backdrop-blur-sm">
+    <div class="glass-strong rounded-3xl max-w-3xl w-full max-h-[85dvh] md:max-h-[90vh] overflow-y-auto shadow-2xl border border-white relative animate-fadeIn">
+      <!-- Прилипающая кнопка закрытия (всегда видна и доступна на мобильных экранах) -->
+      <div class="sticky top-3 right-3 z-30 flex justify-end px-3 pt-3 -mb-12 pointer-events-none">
+        <button onclick="closeCardModal()" aria-label="Закрыть" class="pointer-events-auto w-10 h-10 rounded-full bg-white/95 hover:bg-white text-slate-900 font-extrabold shadow-lg border border-slate-200/80 flex items-center justify-center transition active:scale-95">
+          ✕
+        </button>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12">
         <!-- Left: Card Photo Preview -->
-        <div class="md:col-span-6 bg-slate-900 relative flex flex-col justify-center p-6 min-h-[360px] sm:min-h-[420px] items-center">
-          <div class="relative w-56 sm:w-64 photocard-ratio rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 my-auto group" id="modalMediaViewport">
+        <div class="md:col-span-6 bg-slate-900 relative flex flex-col justify-center p-5 sm:p-6 min-h-[260px] sm:min-h-[420px] items-center">
+          <div class="relative w-44 sm:w-64 photocard-ratio rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 my-auto group" id="modalMediaViewport">
             <img id="modalCardImage" src="" alt="Card preview" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
           </div>
-          <div class="mt-4 px-3 py-1.5 rounded-full bg-white/10 text-blue-200 text-[11px] font-semibold tracking-wide">
+          <div class="mt-3 sm:mt-4 px-3 py-1.5 rounded-full bg-white/10 text-blue-200 text-[11px] font-semibold tracking-wide text-center">
             Официальный релиз из Кореи (Official Merch)
           </div>
         </div>
 
         <!-- Right: Card Details & Action -->
-        <div class="md:col-span-6 p-6 sm:p-7 flex flex-col justify-between space-y-5">
-          <div class="space-y-4">
+        <div class="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between space-y-4 sm:space-y-5">
+          <div class="space-y-3.5 sm:space-y-4">
             <div class="flex items-center gap-2 flex-wrap">
               <span id="modalCardId" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">#KP-01</span>
               <span id="modalReleaseBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-100">POB</span>
@@ -605,7 +607,7 @@
 
             <div>
               <div id="modalGroupName" class="text-xs font-bold uppercase tracking-wider text-blue-600">STRAY KIDS</div>
-              <h3 id="modalMemberName" class="text-2xl font-extrabold text-slate-900 mt-0.5">Felix (Феликс)</h3>
+              <h3 id="modalMemberName" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Felix (Феликс)</h3>
               <p id="modalAlbumTitle" class="text-xs text-slate-500 mt-1">Релиз: 5-STAR (Soundwave POB Exclusive)</p>
             </div>
 
@@ -636,9 +638,12 @@
             </div>
           </div>
 
-          <div class="space-y-2.5 pt-2">
+          <div class="space-y-2 pt-1">
             <button id="modalActionBtn" class="w-full py-3.5 px-5 rounded-2xl font-bold text-sm shadow-lg transition flex items-center justify-center gap-2">
               Положить в корзину
+            </button>
+            <button type="button" onclick="closeCardModal()" class="md:hidden w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+              Закрыть окно
             </button>
             <p class="text-[11px] text-center text-slate-400">
               Видео под лампой до оплаты • Жесткая упаковка включена
@@ -823,6 +828,45 @@
         label.textContent = isHidden ? "Свернуть" : "Подробнее";
       }
     }
+
+    /*************************************************************************
+     * УПРАВЛЕНИЕ ИСТОРИЕЙ БРАУЗЕРА (КНОПКА «НАЗАД» НА МОБИЛЬНЫХ ДЛЯ ОКОН)
+     *************************************************************************/
+    let activeOverlayState = null; // 'card' | 'cart' | 'info' | null
+    let suppressHistoryBack = false;
+
+    function pushOverlayHistory(overlayType) {
+      if (activeOverlayState !== overlayType) {
+        activeOverlayState = overlayType;
+        try {
+          window.history.pushState({ pocadropModal: overlayType }, "");
+        } catch (e) {}
+      }
+    }
+
+    function clearOverlayHistoryIfNeeded(overlayType) {
+      if (activeOverlayState === overlayType) {
+        activeOverlayState = null;
+        if (!suppressHistoryBack && window.history.state && window.history.state.pocadropModal) {
+          try {
+            window.history.back();
+          } catch (e) {}
+        }
+      }
+    }
+
+    window.addEventListener("popstate", () => {
+      if (!activeOverlayState) return;
+      suppressHistoryBack = true;
+      if (activeOverlayState === "card") {
+        closeCardModal();
+      } else if (activeOverlayState === "cart") {
+        toggleCartDrawer(false);
+      } else if (activeOverlayState === "info") {
+        closeInfoModal();
+      }
+      suppressHistoryBack = false;
+    });
 
     function initComingSoonGate() {
       const gate = document.getElementById("comingSoonGate");
@@ -1396,9 +1440,11 @@
       if (open) {
         backdrop.classList.remove("hidden");
         drawer.classList.remove("translate-y-full", "md:translate-x-full");
+        pushOverlayHistory("cart");
       } else {
         backdrop.classList.add("hidden");
         drawer.classList.add("translate-y-full", "md:translate-x-full");
+        clearOverlayHistoryIfNeeded("cart");
       }
     }
 
@@ -1459,12 +1505,14 @@
       const modal = document.getElementById("infoModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
+      pushOverlayHistory("info");
     }
 
     function closeInfoModal() {
       const modal = document.getElementById("infoModal");
       modal.classList.add("hidden");
       modal.classList.remove("flex");
+      clearOverlayHistoryIfNeeded("info");
     }
 
     /*************************************************************************
@@ -1509,6 +1557,7 @@
       const modal = document.getElementById("cardModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
+      pushOverlayHistory("card");
     }
 
     function syncModalButton(card) {
@@ -1536,6 +1585,7 @@
       modal.classList.add("hidden");
       modal.classList.remove("flex");
       activeModalCardId = null;
+      clearOverlayHistoryIfNeeded("card");
     }
 
     /*************************************************************************
