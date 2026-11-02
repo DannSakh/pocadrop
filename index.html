@@ -7,7 +7,7 @@
   <meta name="supported-color-schemes" content="light" />
   <title>PocaDrop (pocadrop.ru) — Официальные K-Pop фотокарты и постеры из Южной Кореи</title>
   <meta name="description" content="PocaDrop — магазин оригинальных карточек и постеров к-поп артистов в наличии в России. Альбомные и предзаказные карты из Южной Кореи с учетом в чартах Hanteo и Circle. Видео под лампой до оплаты." />
-  <meta name="keywords" content="k-pop фотокарты, к-поп карточки купить, оригинальные карты кпоп, предзаказные карты POB, постеры к-поп, Stray Kids, ILLIT, ATEEZ, ENHYPEN, PocaDrop" />
+  <meta name="keywords" content="k-pop фотокарты, к-поп карточки купить, оригинальные карты кпоп, предзаказные карты POB, постеры к-поп, Stray Kids, ILLIT, LE SSERAFIM, Cortis, PocaDrop" />
   <link rel="canonical" href="https://pocadrop.ru/" />
   <meta property="og:title" content="PocaDrop — Официальные K-Pop фотокарты и постеры" />
   <meta property="og:description" content="Оригинальные карточки и постеры к-поп артистов в наличии в России. Выгодные сеты, надежная упаковка (протектор + переплетный картон) и видео под лампой до оплаты." />
@@ -700,9 +700,7 @@
   <script>
     const TELEGRAM_BOT_USERNAME = "PocaDrop_bot";
     const STORAGE_CART_KEY = "pocadrop_saved_cart_v1";
-
-    const BRAND_LOGO_KEY = ["19eCzPPLRxzAW16", "-IOY5Flc-i8AoMelx5"].join("");
-    const BRAND_LOGO_URL = `https://drive.google.com/thumbnail?id=${BRAND_LOGO_KEY}&sz=w400`;
+    const BRAND_LOGO_URL = "/api/photo?id=logo";
     const BRAND_LOGO_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 176" fill="none">
       <defs>
         <linearGradient id="cardGrad" x1="0" y1="0" x2="120" y2="176" gradientUnits="userSpaceOnUse">
@@ -1720,23 +1718,6 @@
       renderCatalog();
     }
 
-    const CUSTOM_PUBLISHED_CSV_URL = "";
-    const DEFAULT_SHEET_KEY = [
-      "1KQYd3ntcBAp9F0kw",
-      "_2YoPbNjk4sbqjsTaFuCmyXI-E8"
-    ].join("");
-
-    function convertDrivePhotoUrl(rawUrl, fallback) {
-      if (!rawUrl) return fallback;
-      const trimmed = rawUrl.trim();
-      if (!trimmed || trimmed.toLowerCase().includes("вставьте ссылку")) return fallback;
-      const match = trimmed.match(/[-\w]{25,}/);
-      if (match && (trimmed.includes("drive.google.com") || trimmed.includes("docs.google.com") || trimmed.length === match[0].length)) {
-        return `https://drive.google.com/thumbnail?id=${match[0]}&sz=w800`;
-      }
-      return trimmed.startsWith("http") ? trimmed : fallback;
-    }
-
     function normalizeReleaseCategory(rawRelease, rawAlbum) {
       const text = (rawRelease || "").trim();
       const low = text.toLowerCase();
@@ -1752,7 +1733,6 @@
       }
 
       const pureAlbumName = (rawAlbum || "").trim() || text || "Album";
-
       const isShortStandard = ["album", "pob", "lucky draw", "fanmeet"].includes(low);
       let fullAlbumTitle = (rawAlbum || "").trim();
       if (text && !isShortStandard) {
@@ -1771,120 +1751,73 @@
       return !isNaN(parsed) && parsed > 0 ? parsed : 400;
     }
 
-    function parseCSVRows(csvText) {
-      const rows = [];
-      let row = [], cur = "", inQuotes = false;
-      for (let i = 0; i < csvText.length; i++) {
-        const ch = csvText[i], next = csvText[i + 1];
-        if (inQuotes) {
-          if (ch === '"' && next === '"') { cur += '"'; i++; }
-          else if (ch === '"') inQuotes = false;
-          else cur += ch;
-        } else {
-          if (ch === '"') inQuotes = true;
-          else if (ch === ',') { row.push(cur.trim()); cur = ""; }
-          else if (ch === '\n' || (ch === '\r' && next === '\n')) {
-            if (ch === '\r') i++;
-            row.push(cur.trim()); rows.push(row); row = []; cur = "";
-          } else cur += ch;
-        }
-      }
-      if (cur.length > 0 || row.length > 0) { row.push(cur.trim()); rows.push(row); }
-      return rows;
-    }
-
     async function syncCatalogFromGoogleSheet() {
-      const endpoints = [];
-      if (CUSTOM_PUBLISHED_CSV_URL) endpoints.push(CUSTOM_PUBLISHED_CSV_URL);
-      if (DEFAULT_SHEET_KEY) {
-        endpoints.push(`https://docs.google.com/spreadsheets/d/${DEFAULT_SHEET_KEY}/gviz/tq?tqx=out:csv`);
-        endpoints.push(`https://docs.google.com/spreadsheets/d/${DEFAULT_SHEET_KEY}/export?format=csv`);
-      }
+      try {
+        const res = await fetch("/api/catalog", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.items)) {
+            CATALOG_DATA = data.items.map(item => {
+              const { id, member, group, priceRaw, releaseRaw, albumRaw, conditionRaw, conditionNoteRaw, statusRaw } = item;
 
-      for (const url of endpoints) {
-        try {
-          const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) continue;
-          const csvText = await res.text();
-          if (!csvText || csvText.trim().startsWith("<!DOCTYPE") || csvText.trim().startsWith("<html")) continue;
+              const sLow = (statusRaw || "").toLowerCase();
+              let status = "available";
+              if (sLow.includes("брон") || sLow === "reserved") status = "reserved";
+              else if (sLow.includes("прод") || sLow === "sold") status = "sold";
 
-          const rows = parseCSVRows(csvText);
-          if (rows.length < 2) continue;
+              const price = parsePriceFromColumnD(priceRaw);
+              const { category, pureAlbumName, fullAlbumTitle } = normalizeReleaseCategory(releaseRaw, albumRaw);
 
-          const loadedCards = rows.slice(1).map((cols) => {
-            const [id, member, group, priceRaw, releaseRaw, albumRaw, conditionRaw, conditionNoteRaw, statusRaw, photoRaw] = cols;
-            if (!id || !member) return null;
+              const freeCondition = conditionRaw || "Новая (Official)";
+              const freeConditionNote = conditionNoteRaw || "Оригинальная позиция в защитном пластиковом протекторе.";
 
-            const sLow = (statusRaw || "").trim().toLowerCase();
-            if (sLow.includes("черновик") || sLow.includes("draft") || sLow.includes("скрыт")) {
-              return null;
-            }
+              const isSetEligible = freeConditionNote.toLowerCase().includes("скидка при покупке сета");
+              const cleanGroup = group || "K-Pop";
+              const setKey = isSetEligible ? `${cleanGroup}__${pureAlbumName}` : "";
 
-            let status = "available";
-            if (sLow.includes("брон") || sLow === "reserved") status = "reserved";
-            else if (sLow.includes("прод") || sLow === "sold") status = "sold";
+              const memberNamesList = parseIndividualMembers(member);
+              const memberKeysList = memberNamesList.map(normalizeMemberKey);
 
-            const price = parsePriceFromColumnD(priceRaw);
-            const { category, pureAlbumName, fullAlbumTitle } = normalizeReleaseCategory(releaseRaw, albumRaw);
+              const fallbackUrl = createFallbackCardArt(
+                member.split("(")[0].trim(),
+                cleanGroup,
+                fullAlbumTitle.slice(0, 28),
+                "#1d4ed8",
+                "#0284c7"
+              );
 
-            const freeCondition = (conditionRaw || "").trim() || "Новая (Official)";
-            const freeConditionNote = (conditionNoteRaw || "").trim() || "Оригинальная позиция в защитном пластиковом протекторе.";
-
-            const isSetEligible = freeConditionNote.toLowerCase().includes("скидка при покупке сета");
-            const cleanGroup = (group || "K-Pop").trim();
-            const setKey = isSetEligible ? `${cleanGroup}__${pureAlbumName}` : "";
-
-            const memberNamesList = parseIndividualMembers(member);
-            const memberKeysList = memberNamesList.map(normalizeMemberKey);
-
-            const fallbackUrl = createFallbackCardArt(
-              member.split("(")[0].trim(),
-              cleanGroup,
-              fullAlbumTitle.slice(0, 28),
-              "#1d4ed8",
-              "#0284c7"
-            );
-
-            return {
-              id: id.trim(),
-              member: member.trim(),
-              memberNamesList,
-              memberKeysList,
-              group: cleanGroup,
-              price,
-              releaseType: category,
-              albumName: pureAlbumName,
-              album: fullAlbumTitle,
-              condition: freeCondition,
-              conditionNote: freeConditionNote,
-              isSetEligible,
-              setKey,
-              status,
-              photoUrl: convertDrivePhotoUrl(photoRaw, fallbackUrl),
-              fallbackUrl
-            };
-          }).filter(Boolean);
-
-          CATALOG_DATA = loadedCards;
-          isCatalogLoading = false;
-          loadCartFromStorage();
-          saveCartToStorage();
-          renderPromoSetsButtons();
-          renderGroupPills();
-          renderMemberPills();
-          renderAlbumFilterOptions();
-          updateCartUI();
-          updateDynamicSeoBlock();
-          return;
-        } catch (err) {}
-      }
+              return {
+                id,
+                member,
+                memberNamesList,
+                memberKeysList,
+                group: cleanGroup,
+                price,
+                releaseType: category,
+                albumName: pureAlbumName,
+                album: fullAlbumTitle,
+                condition: freeCondition,
+                conditionNote: freeConditionNote,
+                isSetEligible,
+                setKey,
+                status,
+                photoUrl: `/api/photo?id=${encodeURIComponent(id)}`,
+                fallbackUrl
+              };
+            });
+          }
+        }
+      } catch (err) {}
 
       isCatalogLoading = false;
+      loadCartFromStorage();
+      saveCartToStorage();
       renderPromoSetsButtons();
       renderGroupPills();
       renderMemberPills();
       renderAlbumFilterOptions();
       updateCartUI();
+      updateDynamicSeoBlock();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
